@@ -25,6 +25,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     ApplicationContext applicationContext;
 
     private Map<String, Object> serviceMap = new HashMap<>();
+    private Map<String, Map<String, Method>> serviceMethodMap = new HashMap<>();
 
     @PostConstruct
     public void initProviders() {
@@ -38,12 +39,31 @@ public class ProviderBootstrap implements ApplicationContextAware {
     private void genInterfaces(Object v) {
         String serviceName = v.getClass().getInterfaces()[0].getCanonicalName();
         serviceMap.put(serviceName, v);
+
+        Map<String, Method> methodMap = new HashMap<>();
+        Class<?> anInterface = v.getClass().getInterfaces()[0];
+        Method[] methods = anInterface.getMethods();
+        // 获取所有方法的签名
+        for (Method method : methods) {
+            StringBuilder signatureBuilder = new StringBuilder();
+            signatureBuilder.append(method.getName());
+            // 获取并添加参数类型的简单名称
+            for (Class<?> paramType : method.getParameterTypes()) {
+                signatureBuilder.append('_').append(paramType.getSimpleName());
+            }
+            // 添加返回类型
+            signatureBuilder.append("_").append(method.getReturnType().getSimpleName());
+            // 输出方法签名
+            System.out.println("Method Signature: " + signatureBuilder);
+            methodMap.put(signatureBuilder.toString(), method);
+        }
+        serviceMethodMap.put(serviceName, methodMap);
     }
 
     public RpcResponse invoke(RpcRequest request) {
         Object bean = serviceMap.get(request.getService());
         try {
-            Method method = findMethod(bean.getClass(), request.getMethod());
+            Method method = findMethod(request.getService(), request.getMethodSign());
             Object result = method.invoke(bean, request.getArgs());
             return new RpcResponse(true, result);
         } catch (InvocationTargetException e) {
@@ -53,11 +73,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
         }
     }
 
-    private Method findMethod(Class<?> aClass, String methodName) {
-        for (Method method : aClass.getMethods()) {
-            if (method.getName().equals(methodName)) {
-                return method;
-            }
+    private Method findMethod(String serviceName, String methodSign) {
+        if (serviceMethodMap.containsKey(serviceName)) {
+            return serviceMethodMap.get(serviceName).get(methodSign);
         }
         return null;
     }
