@@ -8,7 +8,9 @@ package cn.pengshao.rpc.demo.api;
  */
 public interface UserService {
 
-    User findById(int id);
-
     User findById(Integer id);
+
+    int getId(int id);
+
+    String getName(String name);
 }

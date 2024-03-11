@@ -3,6 +3,7 @@ package cn.pengshao.rpc.core.provider;
 import cn.pengshao.rpc.core.annotaion.PsProvider;
 import cn.pengshao.rpc.core.api.RpcRequest;
 import cn.pengshao.rpc.core.api.RpcResponse;
+import cn.pengshao.rpc.core.util.MethodUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.springframework.context.ApplicationContext;
@@ -45,17 +46,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
         Method[] methods = anInterface.getMethods();
         // 获取所有方法的签名
         for (Method method : methods) {
-            StringBuilder signatureBuilder = new StringBuilder();
-            signatureBuilder.append(method.getName());
-            // 获取并添加参数类型的简单名称
-            for (Class<?> paramType : method.getParameterTypes()) {
-                signatureBuilder.append('_').append(paramType.getSimpleName());
-            }
-            // 添加返回类型
-            signatureBuilder.append("_").append(method.getReturnType().getSimpleName());
-            // 输出方法签名
-            System.out.println("Method Signature: " + signatureBuilder);
-            methodMap.put(signatureBuilder.toString(), method);
+            methodMap.put(MethodUtils.getMethodSign(method), method);
         }
         serviceMethodMap.put(serviceName, methodMap);
     }
@@ -64,12 +55,16 @@ public class ProviderBootstrap implements ApplicationContextAware {
         Object bean = serviceMap.get(request.getService());
         try {
             Method method = findMethod(request.getService(), request.getMethodSign());
+            if (method == null) {
+                return new RpcResponse(false, null, "method not found");
+            }
+
             Object result = method.invoke(bean, request.getArgs());
-            return new RpcResponse(true, result);
+            return new RpcResponse(true, result, "success");
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+            return new RpcResponse(false, null, e.getTargetException().getMessage());
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            return new RpcResponse(false, null, e.getMessage());
         }
     }
 

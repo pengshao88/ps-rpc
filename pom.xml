@@ -17,6 +17,7 @@
         <module>ps-rpc-core</module>
         <module>psrpc-demo-api</module>
         <module>psrpc-demo-provider</module>
+        <module>psrpc-demo-consumer</module>
     </modules>
 
     <properties>

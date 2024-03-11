@@ -5,6 +5,8 @@ import cn.pengshao.rpc.demo.api.User;
 import cn.pengshao.rpc.demo.api.UserService;
 import org.springframework.stereotype.Component;
 
+import java.util.Random;
+
 /**
  * Description:
  *
@@ -16,13 +18,18 @@ import org.springframework.stereotype.Component;
 public class UserServiceImpl implements UserService {
 
     @Override
-    public User findById(int id) {
+    public User findById(Integer id) {
         return new User(id, "pengshao_" + System.currentTimeMillis());
     }
 
     @Override
-    public User findById(Integer id) {
-        return new User(id, "test_" + System.currentTimeMillis());
+    public int getId(int id) {
+        return id;
+    }
+
+    @Override
+    public String getName(String name) {
+        return name + "_" + new Random().nextInt(100);
     }
 
 }
