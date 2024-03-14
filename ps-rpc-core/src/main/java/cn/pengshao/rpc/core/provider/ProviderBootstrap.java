@@ -4,6 +4,7 @@ import cn.pengshao.rpc.core.annotaion.PsProvider;
 import cn.pengshao.rpc.core.api.RpcRequest;
 import cn.pengshao.rpc.core.api.RpcResponse;
 import cn.pengshao.rpc.core.util.MethodUtils;
+import cn.pengshao.rpc.core.util.TypeUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.springframework.context.ApplicationContext;
@@ -59,13 +60,23 @@ public class ProviderBootstrap implements ApplicationContextAware {
                 return new RpcResponse(false, null, "method not found");
             }
 
-            Object result = method.invoke(bean, request.getArgs());
+            Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
+            Object result = method.invoke(bean, args);
             return new RpcResponse(true, result, "success");
         } catch (InvocationTargetException e) {
             return new RpcResponse(false, null, e.getTargetException().getMessage());
         } catch (IllegalAccessException e) {
             return new RpcResponse(false, null, e.getMessage());
         }
+    }
+
+    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
+        if(args == null || args.length == 0) return args;
+        Object[] actualArr = new Object[args.length];
+        for (int i = 0; i < args.length; i++) {
+            actualArr[i] = TypeUtils.cast(args[i], parameterTypes[i]);
+        }
+        return actualArr;
     }
 
     private Method findMethod(String serviceName, String methodSign) {

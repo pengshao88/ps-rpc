@@ -34,7 +34,7 @@ public class MethodUtils {
             signatureBuilder.append('_').append(paramType.getSimpleName());
         }
         // 添加返回类型
-        signatureBuilder.append("_").append(method.getReturnType().getSimpleName());
+//        signatureBuilder.append("_").append(method.getReturnType().getSimpleName());
         // 输出方法签名
         System.out.println("Method Signature: " + signatureBuilder);
         return signatureBuilder.toString();

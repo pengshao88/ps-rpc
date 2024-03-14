@@ -3,11 +3,15 @@ package cn.pengshao.rpc.core.consumer;
 import cn.pengshao.rpc.core.api.RpcRequest;
 import cn.pengshao.rpc.core.api.RpcResponse;
 import cn.pengshao.rpc.core.util.MethodUtils;
+import cn.pengshao.rpc.core.util.TypeUtils;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +57,7 @@ public class PsInvocationHandler implements InvocationHandler {
             if (data instanceof JSONObject jsonResult) {
                 return jsonResult.toJavaObject(method.getReturnType());
             } else {
-                return data;
+                return TypeUtils.cast(data, method.getReturnType());
             }
         } else {
             throw new RuntimeException(rpcResponse.getMsg());

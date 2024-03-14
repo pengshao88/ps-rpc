@@ -32,7 +32,7 @@ public class ProviderController {
         return x -> {
             RpcRequest request = new RpcRequest();
             request.setService("cn.pengshao.rpc.demo.api.UserService");
-            request.setMethodSign("findById_Integer_User");
+            request.setMethodSign("findById_Integer");
             request.setArgs(new Object[]{100});
 
             RpcResponse rpcResponse = invoke(request);
