@@ -35,7 +35,10 @@ public class TypeUtils {
             return resultArray;
         }
 
-        JSON.parseObject(JSON.toJSONString(origin), type);
+        if (origin instanceof JSONObject jsonObject) {
+            return jsonObject.toJavaObject(type);
+        }
+
         if (origin instanceof HashMap map) {
             JSONObject jsonObject = new JSONObject(map);
             return jsonObject.toJavaObject(type);
@@ -54,7 +57,9 @@ public class TypeUtils {
         } else if (type.equals(Short.class) || type.equals(Short.TYPE)) {
             return Short.valueOf(origin.toString());
         } else if (type.equals(Character.class) || type.equals(Character.TYPE)) {
-            return Character.valueOf(origin.toString().charAt(0));
+            return origin.toString().charAt(0);
+        } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
+            return Boolean.valueOf(origin.toString());
         }
 
         return null;

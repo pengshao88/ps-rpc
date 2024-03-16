@@ -5,6 +5,7 @@ import cn.pengshao.rpc.demo.api.User;
 import cn.pengshao.rpc.demo.api.UserService;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -18,6 +19,8 @@ import java.util.Random;
 @PsProvider
 @Component
 public class UserServiceImpl implements UserService {
+
+    final static SecureRandom RANDOM = new SecureRandom();
 
     @Override
     public User findById(Integer id) {
@@ -36,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getName(String name) {
-        return name + "_" + new Random().nextInt(100);
+        return name + "_" + RANDOM.nextInt(100);
     }
 
     @Override
@@ -81,12 +84,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getList(List<User> userList) {
+        userList.add(new User(RANDOM.nextInt(3000), "getList"));
         return userList;
     }
 
     @Override
     public Map<String, User> getMap(Map<String, User> userMap) {
+        userMap.put("user", new User(RANDOM.nextInt(3000) + 3000, "getMap"));
         return userMap;
+    }
+
+    @Override
+    public Boolean getFlag(boolean flag) {
+        return flag;
     }
 
 }
