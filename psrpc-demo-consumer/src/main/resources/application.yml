@@ -2,4 +2,4 @@ server:
   port: 8088
 
 psrpc:
-  providers: "http://localhost:8080,http://localhost:8081"
+  providers: "http://localhost:8080,http://localhost:8081,http://localhost:8082"

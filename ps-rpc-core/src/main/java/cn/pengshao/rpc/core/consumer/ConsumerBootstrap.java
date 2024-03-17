@@ -2,6 +2,7 @@ package cn.pengshao.rpc.core.consumer;
 
 import cn.pengshao.rpc.core.annotaion.PsConsumer;
 import cn.pengshao.rpc.core.api.LoadBalancer;
+import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.api.Router;
 import cn.pengshao.rpc.core.api.RpcContext;
 import lombok.Data;
@@ -35,11 +36,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         RpcContext context = new RpcContext();
         context.setRouter(applicationContext.getBean(Router.class));
         context.setLoadBalancer(applicationContext.getBean(LoadBalancer.class));
-        String urls = environment.getProperty("psrpc.providers");
-        if (null == urls || urls.isEmpty()) {
-            throw new RuntimeException("psrpc.providers is null");
-        }
-        List<String> providers = List.of(urls.split(","));
+        RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
 
         String[] beanNames = applicationContext.getBeanDefinitionNames();
         for (String beanName : beanNames) {
@@ -54,7 +51,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                         continue;
                     }
 
-                    Object consumer = createConsumer(service, context, providers);
+                    Object consumer = createConsumer(service, context, registryCenter);
                     field.setAccessible(true);
                     field.set(bean, consumer);
                     stub.put(serviceName, consumer);
@@ -64,6 +61,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
             }
         }
 
+    }
+
+    private Object createConsumer(Class<?> service, RpcContext context, RegistryCenter registryCenter) {
+        return createConsumer(service, context, registryCenter.fetchAll(service.getCanonicalName()));
     }
 
     private Object createConsumer(Class<?> service, RpcContext context, List<String> providers) {

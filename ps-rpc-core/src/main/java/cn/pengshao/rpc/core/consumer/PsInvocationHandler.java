@@ -60,7 +60,7 @@ public class PsInvocationHandler implements InvocationHandler {
 //        JSON.parseObject(response, new TypeReference<RpcResponse<actualType>>());
 
         System.out.println("loadBalancer.choose(urls) ===> " + url);
-        RpcResponse rpcResponse = post(request, url + "/");
+        RpcResponse rpcResponse = post(request, url);
         if (rpcResponse.isStatus()) {
             Object data = rpcResponse.getData();
             Class<?> type = method.getReturnType();
