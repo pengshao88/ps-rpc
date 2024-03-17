@@ -1,9 +1,14 @@
 package cn.pengshao.rpc.core.consumer;
 
 import cn.pengshao.rpc.core.annotaion.PsConsumer;
+import cn.pengshao.rpc.core.api.LoadBalancer;
+import cn.pengshao.rpc.core.api.Router;
+import cn.pengshao.rpc.core.api.RpcContext;
 import lombok.Data;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
@@ -19,13 +24,23 @@ import java.util.Map;
  * @date 2024/3/10 22:39
  */
 @Data
-public class ConsumerBootstrap implements ApplicationContextAware {
+public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
 
     private Map<String, Object> stub = new HashMap<>();
 
     ApplicationContext applicationContext;
+    Environment environment;
 
     public void start() {
+        RpcContext context = new RpcContext();
+        context.setRouter(applicationContext.getBean(Router.class));
+        context.setLoadBalancer(applicationContext.getBean(LoadBalancer.class));
+        String urls = environment.getProperty("psrpc.providers");
+        if (null == urls || urls.isEmpty()) {
+            throw new RuntimeException("psrpc.providers is null");
+        }
+        List<String> providers = List.of(urls.split(","));
+
         String[] beanNames = applicationContext.getBeanDefinitionNames();
         for (String beanName : beanNames) {
             Object bean = applicationContext.getBean(beanName);
@@ -39,7 +54,7 @@ public class ConsumerBootstrap implements ApplicationContextAware {
                         continue;
                     }
 
-                    Object consumer = createConsumer(service);
+                    Object consumer = createConsumer(service, context, providers);
                     field.setAccessible(true);
                     field.set(bean, consumer);
                     stub.put(serviceName, consumer);
@@ -51,8 +66,9 @@ public class ConsumerBootstrap implements ApplicationContextAware {
 
     }
 
-    private Object createConsumer(Class<?> service) {
-        return Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service}, new PsInvocationHandler(service));
+    private Object createConsumer(Class<?> service, RpcContext context, List<String> providers) {
+        return Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service},
+                new PsInvocationHandler(service, context, providers));
     }
 
     private List<Field> findAnnotatedField(Class<?> clazz) {

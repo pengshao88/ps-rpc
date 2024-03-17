@@ -1,13 +1,11 @@
 package cn.pengshao.rpc.core.consumer;
 
-import cn.pengshao.rpc.core.api.RpcRequest;
-import cn.pengshao.rpc.core.api.RpcResponse;
+import cn.pengshao.rpc.core.api.*;
 import cn.pengshao.rpc.core.util.MethodUtils;
 import cn.pengshao.rpc.core.util.TypeUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -25,9 +23,13 @@ import java.util.concurrent.TimeUnit;
 public class PsInvocationHandler implements InvocationHandler {
 
     private final Class<?> service;
+    private final RpcContext context;
+    private final List<String> providers;
 
-    public PsInvocationHandler(Class<?> service) {
+    public PsInvocationHandler(Class<?> service, RpcContext context, List<String> providers) {
         this.service = service;
+        this.context = context;
+        this.providers = providers;
     }
 
     final static OkHttpClient HTTP_CLIENT = new OkHttpClient.Builder()
@@ -44,6 +46,8 @@ public class PsInvocationHandler implements InvocationHandler {
         if (MethodUtils.checkLocalMethod(method.getName())) {
             return null;
         }
+        List<String> routedProviders = context.getRouter().route(providers);
+        String url = (String) context.getLoadBalancer().choose(routedProviders);
 
         RpcRequest request = new RpcRequest();
         request.setService(service.getCanonicalName());
@@ -55,7 +59,8 @@ public class PsInvocationHandler implements InvocationHandler {
 //        Class<? extends Type> actualType = method.getGenericReturnType().getClass();
 //        JSON.parseObject(response, new TypeReference<RpcResponse<actualType>>());
 
-        RpcResponse rpcResponse = post(request);
+        System.out.println("loadBalancer.choose(urls) ===> " + url);
+        RpcResponse rpcResponse = post(request, url + "/");
         if (rpcResponse.isStatus()) {
             Object data = rpcResponse.getData();
             Class<?> type = method.getReturnType();
@@ -113,11 +118,11 @@ public class PsInvocationHandler implements InvocationHandler {
         }
     }
 
-    private RpcResponse post(RpcRequest rpcRequest) {
+    private RpcResponse post(RpcRequest rpcRequest, String url) {
         String reqJson = JSON.toJSONString(rpcRequest);
         System.out.println("reqJson: " + reqJson);
         Request request = new Request.Builder()
-                .url("http://localhost:8080/")
+                .url(url)
                 .post(RequestBody.create(reqJson, JSON_TYPE))
                 .build();
 

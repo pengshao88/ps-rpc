@@ -1,5 +1,9 @@
 package cn.pengshao.rpc.core.consumer;
 
+import cn.pengshao.rpc.core.api.LoadBalancer;
+import cn.pengshao.rpc.core.api.Router;
+import cn.pengshao.rpc.core.cluster.RandomLoadBalancer;
+import cn.pengshao.rpc.core.cluster.RoundLoadBalancer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +32,18 @@ public class ConsumerConfig {
             consumerBootstrap.start();
             System.out.println("consumerBootstrapRunner end");
         };
+    }
+
+    @Bean
+    public Router router() {
+        return Router.DEFAULT;
+    }
+
+    @Bean
+    public LoadBalancer loadBalancer() {
+        return new RoundLoadBalancer();
+//        return new RandomLoadBalancer();
+//        return LoadBalancer.DEFAULT;
     }
 
 }

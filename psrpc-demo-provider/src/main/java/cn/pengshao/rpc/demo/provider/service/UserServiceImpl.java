@@ -3,6 +3,8 @@ package cn.pengshao.rpc.demo.provider.service;
 import cn.pengshao.rpc.core.annotaion.PsProvider;
 import cn.pengshao.rpc.demo.api.User;
 import cn.pengshao.rpc.demo.api.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
@@ -22,9 +24,14 @@ public class UserServiceImpl implements UserService {
 
     final static SecureRandom RANDOM = new SecureRandom();
 
+    @Autowired
+    Environment environment;
+
     @Override
     public User findById(Integer id) {
-        return new User(id, "pengshao_" + System.currentTimeMillis());
+        return new User(id, "pengshao_"
+                + environment.getProperty("server.port") + "_"
+                + System.currentTimeMillis());
     }
 
     @Override
