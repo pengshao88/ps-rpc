@@ -106,4 +106,9 @@ public class UserServiceImpl implements UserService {
         return flag;
     }
 
+    @Override
+    public User[] findUsers(User[] users) {
+        return users;
+    }
+
 }

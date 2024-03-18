@@ -5,6 +5,8 @@ import cn.pengshao.rpc.core.api.LoadBalancer;
 import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.api.Router;
 import cn.pengshao.rpc.core.api.RpcContext;
+import cn.pengshao.rpc.core.registry.ChangedListener;
+import cn.pengshao.rpc.core.registry.Event;
 import lombok.Data;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Description:
@@ -47,11 +50,11 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 try {
                     Class<?> service = field.getType();
                     String serviceName = service.getCanonicalName();
-                    if (stub.containsKey(serviceName)) {
-                        continue;
+                    Object consumer = stub.get(serviceName);
+                    if (consumer == null) {
+                        consumer = createRegistry(service, context, registryCenter);
                     }
 
-                    Object consumer = createConsumer(service, context, registryCenter);
                     field.setAccessible(true);
                     field.set(bean, consumer);
                     stub.put(serviceName, consumer);
@@ -63,8 +66,21 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     }
 
-    private Object createConsumer(Class<?> service, RpcContext context, RegistryCenter registryCenter) {
-        return createConsumer(service, context, registryCenter.fetchAll(service.getCanonicalName()));
+    private Object createRegistry(Class<?> service, RpcContext context, RegistryCenter registryCenter) {
+        String serviceName = service.getCanonicalName();
+        List<String> providers = mapUrls(registryCenter.fetchAll(serviceName));
+        System.out.println("fetchAll providers: " + providers);
+
+        registryCenter.subscribe(serviceName, event -> {
+            providers.clear();
+            providers.addAll(mapUrls(event.getData()));
+        });
+        return createConsumer(service, context, providers);
+    }
+
+    private List<String> mapUrls(List<String> nodes) {
+        return nodes.stream()
+                .map(x -> "http://" + x.replace('_', ':')).collect(Collectors.toList());
     }
 
     private Object createConsumer(Class<?> service, RpcContext context, List<String> providers) {

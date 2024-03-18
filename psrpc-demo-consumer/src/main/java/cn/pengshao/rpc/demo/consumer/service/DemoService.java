@@ -49,6 +49,12 @@ public class DemoService {
 //            System.out.println(userService.getMap(hashMap));
 //            System.out.println(userService.getFlag(false));
 
+            System.out.println("Case 17. >>===[测试参数和返回值都是User[]类型]===");
+            User[] users = new User[]{
+                    new User(100, "ps-100"),
+                    new User(101, "ps-101")};
+            Arrays.stream(userService.findUsers(users)).forEach(System.out::println);
+
 //            System.out.println(orderService.findById(404));
         };
     }

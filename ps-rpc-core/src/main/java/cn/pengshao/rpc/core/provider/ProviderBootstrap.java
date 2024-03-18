@@ -1,17 +1,22 @@
 package cn.pengshao.rpc.core.provider;
 
 import cn.pengshao.rpc.core.annotaion.PsProvider;
+import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.api.RpcRequest;
 import cn.pengshao.rpc.core.api.RpcResponse;
 import cn.pengshao.rpc.core.util.MethodUtils;
 import cn.pengshao.rpc.core.util.TypeUtils;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +31,10 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     ApplicationContext applicationContext;
 
+    @Value("${server.port}")
+    private String port;
+
+    private String instance;
     private Map<String, Object> serviceMap = new HashMap<>();
     private Map<String, Map<String, Method>> serviceMethodMap = new HashMap<>();
 
@@ -50,6 +59,31 @@ public class ProviderBootstrap implements ApplicationContextAware {
             methodMap.put(MethodUtils.getMethodSign(method), method);
         }
         serviceMethodMap.put(serviceName, methodMap);
+    }
+
+    public void start() {
+        try {
+            String ip = InetAddress.getLocalHost().getHostAddress();
+            instance = ip + "_" + port;
+            serviceMap.keySet().forEach(this::registerService);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void registerService(String service) {
+        RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
+        rc.register(service, instance);
+    }
+
+    @PreDestroy
+    public void stop() {
+        serviceMap.keySet().forEach(this::unregisterService);
+    }
+
+    private void unregisterService(String service) {
+        RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
+        rc.unregister(service, instance);
     }
 
     public RpcResponse invoke(RpcRequest request) {
