@@ -7,7 +7,6 @@ import cn.pengshao.rpc.core.api.RpcResponse;
 import cn.pengshao.rpc.core.util.MethodUtils;
 import cn.pengshao.rpc.core.util.TypeUtils;
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -76,8 +75,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
         rc.register(service, instance);
     }
 
-    @PreDestroy
     public void stop() {
+        System.out.println(" ===> provider unregisterService.");
         serviceMap.keySet().forEach(this::unregisterService);
     }
 
