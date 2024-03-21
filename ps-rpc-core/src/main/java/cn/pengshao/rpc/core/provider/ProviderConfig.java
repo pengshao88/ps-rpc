@@ -1,14 +1,11 @@
 package cn.pengshao.rpc.core.provider;
 
 import cn.pengshao.rpc.core.api.RegistryCenter;
-import cn.pengshao.rpc.core.registry.ZkRegistryCenter;
+import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.core.annotation.Order;
 
 /**
@@ -26,6 +23,11 @@ public class ProviderConfig {
     }
 
     @Bean
+    ProviderInvoker providerInvoker(@Autowired ProviderBootstrap providerBootstrap) {
+        return new ProviderInvoker(providerBootstrap);
+    }
+
+    @Bean
     @Order(Integer.MIN_VALUE)
     public ApplicationRunner providerBootstrap_runner(@Autowired ProviderBootstrap providerBootstrap) {
         return x -> {
@@ -35,26 +37,9 @@ public class ProviderConfig {
         };
     }
 
-    @Bean(initMethod = "start")
+    @Bean
     public RegistryCenter provider_rc() {
         return new ZkRegistryCenter();
     }
 
-    @Bean
-    public ApplicationListener<ContextClosedEvent> providerShutdownListener() {
-        return new ApplicationListener<>() {
-            @Override
-            public void onApplicationEvent(ContextClosedEvent event) {
-                System.out.println(" ===> ContextClosedEvent: " + event);
-                ApplicationContext applicationContext = event.getApplicationContext();
-                applicationContext.getBean(ProviderBootstrap.class).stop();
-                applicationContext.getBean(ZkRegistryCenter.class).stop();
-            }
-
-            @Override
-            public boolean supportsAsyncExecution() {
-                return ApplicationListener.super.supportsAsyncExecution();
-            }
-        };
-    }
 }

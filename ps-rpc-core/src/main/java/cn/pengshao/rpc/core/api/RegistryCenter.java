@@ -1,5 +1,6 @@
 package cn.pengshao.rpc.core.api;
 
+import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.registry.ChangedListener;
 
 import java.util.List;
@@ -17,20 +18,20 @@ public interface RegistryCenter {
     void stop();
 
     // provider 注册
-    void register(String serviceName, String instance);
+    void register(String serviceName, InstanceMeta instance);
 
-    void unregister(String serviceName, String instance);
+    void unregister(String serviceName, InstanceMeta instance);
 
     // consumer 侧
-    List<String> fetchAll(String service);
+    List<InstanceMeta> fetchAll(String service);
 
     void subscribe(String service, ChangedListener changedListener);
 
     class StaticRegistryCenter implements RegistryCenter {
 
-        List<String> providers;
+        List<InstanceMeta> providers;
 
-        public StaticRegistryCenter(List<String> providers) {
+        public StaticRegistryCenter(List<InstanceMeta> providers) {
             this.providers = providers;
         }
 
@@ -41,13 +42,13 @@ public interface RegistryCenter {
         public void stop() {}
 
         @Override
-        public void register(String serviceName, String instance) {}
+        public void register(String serviceName, InstanceMeta instance) {}
 
         @Override
-        public void unregister(String serviceName, String instance) {}
+        public void unregister(String serviceName, InstanceMeta instance) {}
 
         @Override
-        public List<String> fetchAll(String service) {
+        public List<InstanceMeta> fetchAll(String service) {
             return providers;
         }
 

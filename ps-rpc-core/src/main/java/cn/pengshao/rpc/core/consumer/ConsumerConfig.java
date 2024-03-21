@@ -3,17 +3,14 @@ package cn.pengshao.rpc.core.consumer;
 import cn.pengshao.rpc.core.api.LoadBalancer;
 import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.api.Router;
-import cn.pengshao.rpc.core.cluster.RandomLoadBalancer;
 import cn.pengshao.rpc.core.cluster.RoundLoadBalancer;
-import cn.pengshao.rpc.core.registry.ZkRegistryCenter;
+import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-
-import java.util.List;
 
 /**
  * Description:
@@ -55,7 +52,6 @@ public class ConsumerConfig {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public RegistryCenter consumer_registryCenter() {
-//        return new RegistryCenter.StaticRegistryCenter(List.of(servers.split(",")));
         return new ZkRegistryCenter();
     }
 

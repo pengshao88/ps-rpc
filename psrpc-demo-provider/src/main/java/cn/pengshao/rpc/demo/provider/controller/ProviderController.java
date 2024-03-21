@@ -2,7 +2,7 @@ package cn.pengshao.rpc.demo.provider.controller;
 
 import cn.pengshao.rpc.core.api.RpcRequest;
 import cn.pengshao.rpc.core.api.RpcResponse;
-import cn.pengshao.rpc.core.provider.ProviderBootstrap;
+import cn.pengshao.rpc.core.provider.ProviderInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProviderController {
 
     @Autowired
-    ProviderBootstrap providerBootstrap;
+    ProviderInvoker providerInvoker;
 
     @RequestMapping("/")
-    public RpcResponse invoke(@RequestBody RpcRequest request) {
-        return providerBootstrap.invoke(request);
+    public RpcResponse<Object> invoke(@RequestBody RpcRequest request) {
+        return providerInvoker.invoke(request);
     }
 
     @Bean
@@ -35,9 +35,8 @@ public class ProviderController {
             request.setMethodSign("findById_Integer");
             request.setArgs(new Object[]{100});
 
-            RpcResponse rpcResponse = invoke(request);
+            RpcResponse<Object> rpcResponse = invoke(request);
             System.out.println("return : "+rpcResponse.getData());
-
         };
     }
 

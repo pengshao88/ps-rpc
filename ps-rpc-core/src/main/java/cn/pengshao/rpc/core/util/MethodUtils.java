@@ -1,6 +1,10 @@
 package cn.pengshao.rpc.core.util;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Description:
@@ -33,11 +37,24 @@ public class MethodUtils {
         for (Class<?> paramType : method.getParameterTypes()) {
             signatureBuilder.append('_').append(paramType.getSimpleName());
         }
-        // 添加返回类型
-//        signatureBuilder.append("_").append(method.getReturnType().getSimpleName());
         // 输出方法签名
         System.out.println("Method Signature: " + signatureBuilder);
         return signatureBuilder.toString();
+    }
+
+    public static List<Field> findAnnotatedField(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+        List<Field> result = new ArrayList<>();
+        while (clazz != null) {
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(annotationClass)) {
+                    result.add(field);
+                }
+            }
+            // 被代理的类 是原始类的子类
+            clazz = clazz.getSuperclass();
+        }
+        return result;
     }
 
 }
