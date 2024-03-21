@@ -4,6 +4,7 @@ import cn.pengshao.rpc.core.annotaion.PsProvider;
 import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.meta.ProviderMeta;
+import cn.pengshao.rpc.core.meta.ServiceMeta;
 import cn.pengshao.rpc.core.util.MethodUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
@@ -36,6 +37,14 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @Value("${server.port}")
     private String port;
     private InstanceMeta instance;
+    @Value("${app.id}")
+    private String app;
+    @Value("${app.namespace}")
+    private String namespace;
+    @Value("${app.env}")
+    private String env;
+    @Value("${app.version}")
+    private String version;
 
     @PostConstruct
     public void init() {
@@ -72,8 +81,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
     }
 
     private void registerService(String service) {
-        RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
-        rc.register(service, instance);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .app(app).namespace(namespace).env(env).name(service).version(version).build();
+        registryCenter.register(serviceMeta, instance);
     }
 
     public void stop() {
@@ -83,8 +93,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
     }
 
     private void unregisterService(String service) {
-        RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
-        rc.unregister(service, instance);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .app(app).namespace(namespace).env(env).name(service).version(version).build();
+        registryCenter.unregister(serviceMeta, instance);
     }
 
 }

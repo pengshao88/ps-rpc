@@ -2,6 +2,7 @@ package cn.pengshao.rpc.core.registry.zk;
 
 import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
+import cn.pengshao.rpc.core.meta.ServiceMeta;
 import cn.pengshao.rpc.core.registry.ChangedListener;
 import cn.pengshao.rpc.core.registry.Event;
 import org.apache.curator.RetryPolicy;
@@ -45,8 +46,8 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public void register(String serviceName, InstanceMeta instance) {
-        String servicePath = "/" + serviceName;
+    public void register(ServiceMeta service, InstanceMeta instance) {
+        String servicePath = "/" + service.toPath();
         try {
             // 创建服务的持久化节点
             if (client.checkExists().forPath(servicePath) == null) {
@@ -63,8 +64,8 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public void unregister(String serviceName, InstanceMeta instance) {
-        String servicePath = "/" + serviceName;
+    public void unregister(ServiceMeta service, InstanceMeta instance) {
+        String servicePath = "/" + service.toPath();
         try {
             // 判断服务节点是否存在
             if (client.checkExists().forPath(servicePath) == null) {
@@ -81,8 +82,8 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public List<InstanceMeta> fetchAll(String service) {
-        String servicePath = "/" + service;
+    public List<InstanceMeta> fetchAll(ServiceMeta service) {
+        String servicePath = "/" + service.toPath();
         try {
             // 获取所有子节点
             List<String> nodes = client.getChildren().forPath(servicePath);
@@ -102,7 +103,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public void subscribe(String service, ChangedListener changedListener) {
+    public void subscribe(ServiceMeta service, ChangedListener changedListener) {
         treeCache = TreeCache.newBuilder(client, "/" + service)
                 .setCacheData(true).setMaxDepth(2).build();
         try {

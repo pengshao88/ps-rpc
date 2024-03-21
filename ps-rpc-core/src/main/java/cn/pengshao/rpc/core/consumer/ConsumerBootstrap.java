@@ -6,10 +6,12 @@ import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.api.Router;
 import cn.pengshao.rpc.core.api.RpcContext;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
+import cn.pengshao.rpc.core.meta.ServiceMeta;
 import cn.pengshao.rpc.core.registry.ChangedListener;
 import cn.pengshao.rpc.core.registry.Event;
 import cn.pengshao.rpc.core.util.MethodUtils;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -33,9 +35,17 @@ import java.util.stream.Collectors;
 public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
 
     private Map<String, Object> stub = new HashMap<>();
-
     ApplicationContext applicationContext;
     Environment environment;
+
+    @Value("${app.id}")
+    private String app;
+    @Value("${app.namespace}")
+    private String namespace;
+    @Value("${app.env}")
+    private String env;
+    @Value("${app.version}")
+    private String version;
 
     public void start() {
         RpcContext context = new RpcContext();
@@ -70,10 +80,12 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createRegistry(Class<?> service, RpcContext context, RegistryCenter registryCenter) {
         String serviceName = service.getCanonicalName();
-        List<InstanceMeta> providers = registryCenter.fetchAll(serviceName);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .app(app).namespace(namespace).env(env).name(serviceName).version(version).build();
+        List<InstanceMeta> providers = registryCenter.fetchAll(serviceMeta);
         System.out.println("fetchAll providers: " + providers);
 
-        registryCenter.subscribe(serviceName, event -> {
+        registryCenter.subscribe(serviceMeta, event -> {
             providers.clear();
             providers.addAll(event.getData());
         });

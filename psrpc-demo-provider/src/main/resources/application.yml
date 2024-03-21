@@ -1,8 +1,8 @@
 server:
-  port: 8088
+  port: 8080
+  shutdown: graceful
 
 psrpc:
-  providers: "http://localhost:8080,http://localhost:8081,http://localhost:8082"
   zkServer: localhost:2181
   zkRoot: psrpc
 
