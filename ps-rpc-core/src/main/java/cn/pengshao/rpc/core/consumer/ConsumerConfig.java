@@ -1,9 +1,11 @@
 package cn.pengshao.rpc.core.consumer;
 
+import cn.pengshao.rpc.core.api.Filter;
 import cn.pengshao.rpc.core.api.LoadBalancer;
 import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.api.Router;
 import cn.pengshao.rpc.core.cluster.RoundLoadBalancer;
+import cn.pengshao.rpc.core.filter.CacheFilter;
 import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,4 +58,13 @@ public class ConsumerConfig {
         return new ZkRegistryCenter();
     }
 
+    @Bean
+    public Filter cacheFilter() {
+        return new CacheFilter();
+    }
+
+//    @Bean
+//    public Filter mockFilter() {
+//        return new MockFilter();
+//    }
 }

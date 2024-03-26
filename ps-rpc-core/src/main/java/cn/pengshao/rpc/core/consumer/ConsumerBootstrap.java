@@ -1,10 +1,7 @@
 package cn.pengshao.rpc.core.consumer;
 
 import cn.pengshao.rpc.core.annotaion.PsConsumer;
-import cn.pengshao.rpc.core.api.LoadBalancer;
-import cn.pengshao.rpc.core.api.RegistryCenter;
-import cn.pengshao.rpc.core.api.Router;
-import cn.pengshao.rpc.core.api.RpcContext;
+import cn.pengshao.rpc.core.api.*;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.meta.ServiceMeta;
 import cn.pengshao.rpc.core.registry.ChangedListener;
@@ -53,8 +50,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         RpcContext context = new RpcContext();
         context.setRouter(applicationContext.getBean(Router.class));
         context.setLoadBalancer(applicationContext.getBean(LoadBalancer.class));
-        RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
+        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
+        context.setFilters(filters);
 
+        RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
         String[] beanNames = applicationContext.getBeanDefinitionNames();
         for (String beanName : beanNames) {
             Object bean = applicationContext.getBean(beanName);

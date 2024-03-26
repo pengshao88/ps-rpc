@@ -37,7 +37,7 @@ public class PsInvocationHandler implements InvocationHandler {
             return null;
         }
         List<InstanceMeta> routedProviders = context.getRouter().route(providers);
-        InstanceMeta instanceMeta = (InstanceMeta) context.getLoadBalancer().choose(routedProviders);
+        InstanceMeta instanceMeta = context.getLoadBalancer().choose(routedProviders);
         String url = instanceMeta.toUrl();
 
         RpcRequest request = new RpcRequest();
@@ -50,8 +50,27 @@ public class PsInvocationHandler implements InvocationHandler {
 //        Class<? extends Type> actualType = method.getGenericReturnType().getClass();
 //        JSON.parseObject(response, new TypeReference<RpcResponse<actualType>>());
 
+        for (Filter filter : this.context.getFilters()) {
+            Object preResult = filter.preFilter(request);
+            if(preResult != null) {
+                log.debug(filter.getClass().getName() + " ==> prefilter: " + preResult);
+                return preResult;
+            }
+        }
+
         log.debug("loadBalancer.choose(urls) ===> " + url);
         RpcResponse<Object> rpcResponse = HTTP_INVOKER.post(request, url);
+        Object result = castReturnResult(method, rpcResponse);
+        for (Filter filter : this.context.getFilters()) {
+            Object filterResult = filter.postFilter(request, rpcResponse, result);
+            if(filterResult != null) {
+                return filterResult;
+            }
+        }
+        return result;
+    }
+
+    private static Object castReturnResult(Method method, RpcResponse<?> rpcResponse) {
         if (rpcResponse.isStatus()) {
             Object data = rpcResponse.getData();
             return TypeUtils.castMethod(data, method);
@@ -59,5 +78,4 @@ public class PsInvocationHandler implements InvocationHandler {
             throw new RuntimeException(rpcResponse.getMsg());
         }
     }
-
 }

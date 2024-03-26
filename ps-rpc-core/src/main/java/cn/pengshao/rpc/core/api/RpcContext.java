@@ -1,5 +1,6 @@
 package cn.pengshao.rpc.core.api;
 
+import cn.pengshao.rpc.core.meta.InstanceMeta;
 import lombok.Data;
 
 import java.util.List;
@@ -13,9 +14,9 @@ import java.util.List;
 @Data
 public class RpcContext {
 
-    Router router;
+    Router<InstanceMeta> router;
 
-    LoadBalancer loadBalancer;
+    LoadBalancer<InstanceMeta> loadBalancer;
 
     List<Filter> filters;
 

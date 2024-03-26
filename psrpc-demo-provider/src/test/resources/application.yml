@@ -1,8 +1,9 @@
 server:
-  port: 8088
+  port: 9090
+  shutdown: graceful
 
 psrpc:
-  zkServer: localhost:2181
+  zkServer: localhost:2182
   zkRoot: psrpc
 
 app:
