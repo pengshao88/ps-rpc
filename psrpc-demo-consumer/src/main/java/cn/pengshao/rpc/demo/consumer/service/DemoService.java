@@ -4,6 +4,7 @@ import cn.pengshao.rpc.core.annotaion.PsConsumer;
 import cn.pengshao.rpc.demo.api.OrderService;
 import cn.pengshao.rpc.demo.api.User;
 import cn.pengshao.rpc.demo.api.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import java.util.HashMap;
  * @Author: yezp
  * @date 2024/3/11 22:37
  */
+@Slf4j
 @Component
 public class DemoService {
 
@@ -30,32 +32,33 @@ public class DemoService {
     @Bean
     public ApplicationRunner consumer_runner() {
         return x -> {
-            System.out.println(userService.findById(1));
-            System.out.println(userService.getId(200));
-            System.out.println(userService.getName("tom"));
-            System.out.println(orderService.findById(20));
+            log.info("[1] test case result:{}", userService.findById(1));
+            log.info("[2] test case result:{}", userService.getId(200));
+            log.info("[3] test case result:{}", userService.getName("tom"));
+            log.info("[4] test case result:{}", orderService.findById(20));
 
-            System.out.println(userService.getId(1000000000000000000L));
-            System.out.println(userService.getId(new User(99, "stephen")));
-            System.out.println(userService.getId(100000.0f));
-            System.out.println(userService.getName());
-            System.out.println(userService.getName(88));
-            System.out.println(Arrays.toString(userService.getIds()));
-            System.out.println(Arrays.toString(userService.getLongIds()));
-            System.out.println(Arrays.toString(userService.getIds(new int[]{101, 102, 103})));
-            System.out.println(userService.getList(Collections.singletonList(new User(188888, "getList"))));
+            log.info("[5] test case result:{}", userService.getId(1000000000000000000L));
+            log.info("[6] test case result:{}", userService.getId(new User(99, "stephen")));
+            log.info("[7] test case result:{}", userService.getId(100000.0f));
+            log.info("[8] test case result:{}", userService.getName());
+            log.info("[9] test case result:{}", userService.getName(88));
+            log.info("[10] test case result:{}", Arrays.toString(userService.getIds()));
+            log.info("[11] test case result:{}", Arrays.toString(userService.getLongIds()));
+            log.info("[12] test case result:{}", Arrays.toString(userService.getIds(new int[]{101, 102, 103})));
+            log.info("[13] test case result:{}", userService.getList(Collections.singletonList(new User(188888, "getList"))));
             HashMap<String, User> hashMap = new HashMap<>();
             hashMap.put("ps", new User(9999, "ps"));
-            System.out.println(userService.getMap(hashMap));
-            System.out.println(userService.getFlag(false));
+            log.info("[14] test case result:{}", userService.getMap(hashMap));
+            log.info("[15] test case result:{}", userService.getFlag(false));
 
-            System.out.println("Case 17. >>===[测试参数和返回值都是User[]类型]===");
+            // todo ArrayList ??
+            log.info("Case 17. >>===[测试参数和返回值都是User[]类型]===");
             User[] users = new User[]{
                     new User(100, "ps-100"),
                     new User(101, "ps-101")};
-            Arrays.stream(userService.findUsers(users)).forEach(System.out::println);
+            Arrays.stream(userService.findUsers(users)).forEach(user -> log.info("user:{}", user));
 
-//            System.out.println(orderService.findById(404));
+//            log.info(orderService.findById(404));
         };
     }
 

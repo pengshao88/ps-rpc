@@ -7,7 +7,9 @@ import cn.pengshao.rpc.core.meta.ProviderMeta;
 import cn.pengshao.rpc.core.meta.ServiceMeta;
 import cn.pengshao.rpc.core.util.MethodUtils;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -28,6 +30,7 @@ import java.util.Map;
  * @date 2024/3/7 22:14
  */
 @Data
+@Slf4j
 public class ProviderBootstrap implements ApplicationContextAware {
 
     ApplicationContext applicationContext;
@@ -50,7 +53,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void init() {
         registryCenter = applicationContext.getBean(RegistryCenter.class);
         Map<String, Object> serviceBeans = applicationContext.getBeansWithAnnotation(PsProvider.class);
-        serviceBeans.keySet().forEach(System.out::println);
+        serviceBeans.keySet().forEach(log::info);
         serviceBeans.values().forEach(this::genInterfaces);
     }
 
@@ -65,7 +68,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     private void createProvider(Class<?> service, Object impl, Method method) {
         ProviderMeta providerMeta = ProviderMeta.builder().method(method)
                 .serviceImpl(impl).methodSign(MethodUtils.getMethodSign(method)).build();
-        System.out.println(" create a provider: " + providerMeta);
+        log.info(" create a provider: " + providerMeta);
         skeleton.add(service.getCanonicalName(), providerMeta);
     }
 
@@ -86,8 +89,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
         registryCenter.register(serviceMeta, instance);
     }
 
+    @PreDestroy
     public void stop() {
-        System.out.println(" ===> provider unregisterService.");
+        log.info(" ===> provider unregisterService.");
         skeleton.keySet().forEach(this::unregisterService);
         registryCenter.stop();
     }

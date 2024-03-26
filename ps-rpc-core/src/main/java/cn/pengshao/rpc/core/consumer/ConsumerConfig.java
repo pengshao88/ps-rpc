@@ -5,6 +5,7 @@ import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.api.Router;
 import cn.pengshao.rpc.core.cluster.RoundLoadBalancer;
 import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
@@ -18,6 +19,7 @@ import org.springframework.core.annotation.Order;
  * @Author: yezp
  * @date 2024/3/10 22:51
  */
+@Slf4j
 @Configuration
 public class ConsumerConfig {
 
@@ -33,9 +35,9 @@ public class ConsumerConfig {
     @Order(Integer.MIN_VALUE)
     public ApplicationRunner consumerBootstrapRunner(@Autowired ConsumerBootstrap consumerBootstrap) {
         return x -> {
-            System.out.println("consumerBootstrapRunner starting");
+            log.info("consumerBootstrapRunner starting");
             consumerBootstrap.start();
-            System.out.println("consumerBootstrapRunner end");
+            log.info("consumerBootstrapRunner end");
         };
     }
 
@@ -47,7 +49,6 @@ public class ConsumerConfig {
     @Bean
     public LoadBalancer loadBalancer() {
         return new RoundLoadBalancer();
-//        return new RandomLoadBalancer();
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

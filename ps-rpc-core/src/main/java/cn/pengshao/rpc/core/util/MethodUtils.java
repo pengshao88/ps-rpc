@@ -1,5 +1,7 @@
 package cn.pengshao.rpc.core.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -12,6 +14,7 @@ import java.util.List;
  * @Author: yezp
  * @date 2024/3/11 22:19
  */
+@Slf4j
 public class MethodUtils {
 
     /**
@@ -38,7 +41,7 @@ public class MethodUtils {
             signatureBuilder.append('_').append(paramType.getSimpleName());
         }
         // 输出方法签名
-        System.out.println("Method Signature: " + signatureBuilder);
+        log.debug("Method Signature: " + signatureBuilder);
         return signatureBuilder.toString();
     }
 

@@ -3,6 +3,7 @@ package cn.pengshao.rpc.demo.provider.controller;
 import cn.pengshao.rpc.core.api.RpcRequest;
 import cn.pengshao.rpc.core.api.RpcResponse;
 import cn.pengshao.rpc.core.provider.ProviderInvoker;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author: yezp
  * @date 2024/3/7 22:44
  */
+@Slf4j
 @RestController
 public class ProviderController {
 
@@ -36,7 +38,7 @@ public class ProviderController {
             request.setArgs(new Object[]{100});
 
             RpcResponse<Object> rpcResponse = invoke(request);
-            System.out.println("return : "+rpcResponse.getData());
+            log.info("return : "+rpcResponse.getData());
         };
     }
 

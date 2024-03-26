@@ -11,6 +11,7 @@ import cn.pengshao.rpc.core.registry.ChangedListener;
 import cn.pengshao.rpc.core.registry.Event;
 import cn.pengshao.rpc.core.util.MethodUtils;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
  * @date 2024/3/10 22:39
  */
 @Data
+@Slf4j
 public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
 
     private Map<String, Object> stub = new HashMap<>();
@@ -83,7 +85,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         ServiceMeta serviceMeta = ServiceMeta.builder()
                 .app(app).namespace(namespace).env(env).name(serviceName).version(version).build();
         List<InstanceMeta> providers = registryCenter.fetchAll(serviceMeta);
-        System.out.println("fetchAll providers: " + providers);
+        log.info("fetchAll providers: " + providers);
 
         registryCenter.subscribe(serviceMeta, event -> {
             providers.clear();

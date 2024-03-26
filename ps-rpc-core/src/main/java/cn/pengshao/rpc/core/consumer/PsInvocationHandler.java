@@ -5,6 +5,7 @@ import cn.pengshao.rpc.core.consumer.http.OkHttpInvoker;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.util.MethodUtils;
 import cn.pengshao.rpc.core.util.TypeUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -16,6 +17,7 @@ import java.util.*;
  * @Author: yezp
  * @date 2024/3/11 22:15
  */
+@Slf4j
 public class PsInvocationHandler implements InvocationHandler {
 
     private final Class<?> service;
@@ -48,7 +50,7 @@ public class PsInvocationHandler implements InvocationHandler {
 //        Class<? extends Type> actualType = method.getGenericReturnType().getClass();
 //        JSON.parseObject(response, new TypeReference<RpcResponse<actualType>>());
 
-        System.out.println("loadBalancer.choose(urls) ===> " + url);
+        log.debug("loadBalancer.choose(urls) ===> " + url);
         RpcResponse<Object> rpcResponse = HTTP_INVOKER.post(request, url);
         if (rpcResponse.isStatus()) {
             Object data = rpcResponse.getData();
