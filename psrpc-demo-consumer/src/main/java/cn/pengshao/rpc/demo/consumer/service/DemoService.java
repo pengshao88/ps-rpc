@@ -1,7 +1,6 @@
 package cn.pengshao.rpc.demo.consumer.service;
 
 import cn.pengshao.rpc.core.annotaion.PsConsumer;
-import cn.pengshao.rpc.demo.api.OrderService;
 import cn.pengshao.rpc.demo.api.User;
 import cn.pengshao.rpc.demo.api.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,16 +25,13 @@ public class DemoService {
     @PsConsumer
     UserService userService;
 
-    @PsConsumer
-    OrderService orderService;
-
     @Bean
     public ApplicationRunner consumer_runner() {
         return x -> {
             log.info("[1] test case result:{}", userService.findById(1));
             log.info("[2] test case result:{}", userService.getId(200));
             log.info("[3] test case result:{}", userService.getName("tom"));
-            log.info("[4] test case result:{}", orderService.findById(20));
+//            log.info("[4] test case result:{}", orderService.findById(20));
 
             log.info("[5] test case result:{}", userService.getId(1000000000000000000L));
             log.info("[6] test case result:{}", userService.getId(new User(99, "stephen")));

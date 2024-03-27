@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -25,17 +26,15 @@ import org.springframework.core.annotation.Order;
 @Configuration
 public class ConsumerConfig {
 
-    @Value("${psrpc.providers}")
-    String servers;
-
     @Bean
     ConsumerBootstrap createConsumerBootstrap() {
         return new ConsumerBootstrap();
     }
 
     @Bean
-    @Order(Integer.MIN_VALUE)
-    public ApplicationRunner consumerBootstrapRunner(@Autowired ConsumerBootstrap consumerBootstrap) {
+    @Order(Integer.MIN_VALUE + 1)
+    public ApplicationRunner consumerBootstrapRunner(@Autowired ConsumerBootstrap consumerBootstrap,
+                                                     @Autowired RegistryCenter registryCenter) {
         return x -> {
             log.info("consumerBootstrapRunner starting");
             consumerBootstrap.start();
@@ -54,6 +53,7 @@ public class ConsumerConfig {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
+    @ConditionalOnMissingBean
     public RegistryCenter consumer_registryCenter() {
         return new ZkRegistryCenter();
     }

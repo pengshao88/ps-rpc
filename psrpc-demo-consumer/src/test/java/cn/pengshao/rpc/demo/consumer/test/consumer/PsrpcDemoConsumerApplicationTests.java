@@ -1,7 +1,8 @@
-package cn.pengshao.rpc.demo.consumer.test;
+package cn.pengshao.rpc.demo.consumer.test.consumer;
 
 import cn.pengshao.rpc.core.test.TestZKServer;
-import cn.pengshao.rpc.demo.consumer.test.provider.PsrpcDemoProviderApplication;
+import cn.pengshao.rpc.demo.consumer.PsConsumerApplication;
+import cn.pengshao.rpc.demo.provider.PsProviderApplication;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,7 +18,7 @@ import org.springframework.context.ApplicationContext;
  * @date 2024/3/26 23:32
  */
 @Slf4j
-@SpringBootTest
+@SpringBootTest(classes = {PsConsumerApplication.class})
 public class PsrpcDemoConsumerApplicationTests {
 
     static ApplicationContext context;
@@ -29,7 +30,7 @@ public class PsrpcDemoConsumerApplicationTests {
         log.info(" ====================================== ");
 
         zkServer.start();
-        context = SpringApplication.run(PsrpcDemoProviderApplication.class,
+        context = SpringApplication.run(PsProviderApplication.class,
                 "--server.port=8094", "--psrpc.zkServer=localhost:2182",
                 "--logging.level.cn.pengshao.rpc=info");
     }

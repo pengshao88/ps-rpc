@@ -24,7 +24,7 @@ public class TestZKServer {
         cluster = new TestingCluster(instanceSpec);
         log.info("TestingZooKeeperServer starting ...");
         cluster.start();
-        cluster.getServers().forEach(s -> System.out.println(s.getInstanceSpec()));
+        cluster.getServers().forEach(s -> log.info(" ===> " + s.getInstanceSpec()));
         log.info("TestingZooKeeperServer started.");
     }
 
