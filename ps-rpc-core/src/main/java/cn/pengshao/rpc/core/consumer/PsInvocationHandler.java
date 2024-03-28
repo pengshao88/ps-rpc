@@ -58,7 +58,7 @@ public class PsInvocationHandler implements InvocationHandler {
             }
         }
 
-        log.debug("loadBalancer.choose(urls) ===> " + url);
+        log.info("loadBalancer.choose(urls) ===> " + url);
         RpcResponse<Object> rpcResponse = HTTP_INVOKER.post(request, url);
         Object result = castReturnResult(method, rpcResponse);
         for (Filter filter : this.context.getFilters()) {
