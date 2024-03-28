@@ -1,5 +1,6 @@
 package cn.pengshao.rpc.core.consumer.http;
 
+import cn.pengshao.rpc.core.api.RpcException;
 import cn.pengshao.rpc.core.api.RpcRequest;
 import cn.pengshao.rpc.core.api.RpcResponse;
 import cn.pengshao.rpc.core.consumer.HttpInvoker;
@@ -46,7 +47,7 @@ public class OkHttpInvoker implements HttpInvoker {
             log.debug("respJson: " + respJson);
             return JSON.parseObject(respJson, RpcResponse.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RpcException(e);
         }
     }
 }

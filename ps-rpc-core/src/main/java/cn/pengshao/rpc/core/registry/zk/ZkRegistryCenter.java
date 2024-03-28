@@ -1,6 +1,7 @@
 package cn.pengshao.rpc.core.registry.zk;
 
 import cn.pengshao.rpc.core.api.RegistryCenter;
+import cn.pengshao.rpc.core.api.RpcException;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.meta.ServiceMeta;
 import cn.pengshao.rpc.core.registry.ChangedListener;
@@ -68,7 +69,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             log.info(" ===> zk client register. path:" + instancePath);
             client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RpcException(e);
         }
     }
 
@@ -86,7 +87,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             log.info(" ===> zk client unregister. path:" + instancePath);
             client.delete().forPath(instancePath);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RpcException(e);
         }
     }
 
@@ -100,7 +101,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             nodes.forEach(log::info);
             return mapInstances(nodes);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RpcException(e);
         }
     }
 
@@ -124,7 +125,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             });
             treeCache.start();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RpcException(e);
         }
     }
 }

@@ -17,6 +17,6 @@ public class RpcResponse<T> {
 
     boolean status;
     T data;
-    String msg;
+    Exception ex;
 
 }

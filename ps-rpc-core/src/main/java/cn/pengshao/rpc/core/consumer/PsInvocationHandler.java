@@ -2,6 +2,7 @@ package cn.pengshao.rpc.core.consumer;
 
 import cn.pengshao.rpc.core.api.*;
 import cn.pengshao.rpc.core.consumer.http.OkHttpInvoker;
+import cn.pengshao.rpc.core.enums.ErrorCodeEnum;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.util.MethodUtils;
 import cn.pengshao.rpc.core.util.TypeUtils;
@@ -72,10 +73,14 @@ public class PsInvocationHandler implements InvocationHandler {
 
     private static Object castReturnResult(Method method, RpcResponse<?> rpcResponse) {
         if (rpcResponse.isStatus()) {
-            Object data = rpcResponse.getData();
-            return TypeUtils.castMethod(data, method);
+            return TypeUtils.castMethod(method, rpcResponse.getData());
         } else {
-            throw new RuntimeException(rpcResponse.getMsg());
+            Exception exception = rpcResponse.getEx();
+            if(exception instanceof RpcException ex) {
+                throw ex;
+            } else {
+                throw new RpcException(exception, ErrorCodeEnum.UNKNOWN_ERROR.getErrorMsg());
+            }
         }
     }
 }

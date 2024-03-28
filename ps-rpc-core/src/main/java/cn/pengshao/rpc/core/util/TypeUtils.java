@@ -73,7 +73,7 @@ public class TypeUtils {
 //        return JSON.parseObject(JSON.toJSONString(origin), type);
     }
 
-    public static Object castMethod(Object data, Method method) {
+    public static Object castMethod(Method method, Object data) {
         Class<?> type = method.getReturnType();
         log.debug("method.getReturnType() = " + type);
         if (data instanceof JSONObject jsonResult) {

@@ -1,7 +1,9 @@
 package cn.pengshao.rpc.core.provider;
 
+import cn.pengshao.rpc.core.api.RpcException;
 import cn.pengshao.rpc.core.api.RpcRequest;
 import cn.pengshao.rpc.core.api.RpcResponse;
+import cn.pengshao.rpc.core.enums.ErrorCodeEnum;
 import cn.pengshao.rpc.core.meta.ProviderMeta;
 import cn.pengshao.rpc.core.util.TypeUtils;
 import lombok.Data;
@@ -26,27 +28,28 @@ public class ProviderInvoker {
     public ProviderInvoker(ProviderBootstrap providerBootstrap) {
         this.skeleton = providerBootstrap.getSkeleton();
     }
+
     public RpcResponse<Object> invoke(RpcRequest request) {
         List<ProviderMeta> providerMetas = skeleton.get(request.getService());
         try {
             ProviderMeta providerMeta = findProviderMeta(providerMetas, request.getMethodSign());
             if (providerMeta == null) {
-                return new RpcResponse<>(false, null, "method not found");
+                return new RpcResponse<>(false, null, new RpcException(ErrorCodeEnum.NO_SUCH_METHOD.getErrorMsg()));
             }
 
             Method method = providerMeta.getMethod();
             Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
             Object result = method.invoke(providerMeta.getServiceImpl(), args);
-            return new RpcResponse<>(true, result, "success");
+            return new RpcResponse<>(true, result, null);
         } catch (InvocationTargetException e) {
-            return new RpcResponse<>(false, null, e.getTargetException().getMessage());
+            return new RpcResponse<>(false, null, new RpcException(e.getTargetException().getMessage()));
         } catch (IllegalAccessException e) {
-            return new RpcResponse<>(false, null, e.getMessage());
+            return new RpcResponse<>(false, null, new RpcException(e.getMessage()));
         }
     }
 
     private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
-        if(args == null || args.length == 0) return args;
+        if (args == null || args.length == 0) return args;
         Object[] actualArr = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
             actualArr[i] = TypeUtils.cast(args[i], parameterTypes[i]);

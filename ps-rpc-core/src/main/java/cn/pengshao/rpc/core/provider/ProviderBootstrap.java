@@ -2,6 +2,7 @@ package cn.pengshao.rpc.core.provider;
 
 import cn.pengshao.rpc.core.annotaion.PsProvider;
 import cn.pengshao.rpc.core.api.RegistryCenter;
+import cn.pengshao.rpc.core.api.RpcException;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.meta.ProviderMeta;
 import cn.pengshao.rpc.core.meta.ServiceMeta;
@@ -79,7 +80,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
             instance = InstanceMeta.http(ip, Integer.parseInt(port));
             skeleton.keySet().forEach(this::registerService);
         } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
+            throw new RpcException(e);
         }
     }
 

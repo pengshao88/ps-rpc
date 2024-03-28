@@ -72,7 +72,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                     field.setAccessible(true);
                     field.set(bean, consumer);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new RpcException(e);
                 }
             }
         }
