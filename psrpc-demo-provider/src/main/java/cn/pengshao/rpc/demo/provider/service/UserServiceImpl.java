@@ -11,6 +11,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -115,18 +116,27 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
+
     @Override
     public User find(int timeout) {
         long start = System.currentTimeMillis();
+        String serverPort = environment.getProperty("server.port");
         try {
-            if ("8081".equals(environment.getProperty("server.port"))) {
+            if (Arrays.asList(timeoutPorts.split(",")).contains(serverPort)) {
                 Thread.sleep(timeout);
             }
         } catch (Exception e) {
             throw new RpcException(ErrorCodeEnum.INTERRUPTED_EXCEPTION.getErrorMsg());
         }
-        log.info("find user cost:{}", System.currentTimeMillis() - start);
-        return new User(timeout, "timeout");
+        log.debug("find user cost:{}", System.currentTimeMillis() - start);
+        return new User(timeout, serverPort);
+    }
+
+    String timeoutPorts = "8081,8090";
+
+    @Override
+    public void setTimeoutPorts(String timeoutPorts) {
+        this.timeoutPorts = timeoutPorts;
     }
 
 }

@@ -16,4 +16,4 @@ app:
 logging:
   level:
     root: error
-    cn.pengshao.rpc: info
+    cn.pengshao.rpc: debug

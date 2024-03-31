@@ -115,4 +115,11 @@ public class UserServiceImpl implements UserService {
         return new User(timeout, "");
     }
 
+    String timeoutPorts = "8081,8090";
+
+    @Override
+    public void setTimeoutPorts(String timeoutPorts) {
+        this.timeoutPorts = timeoutPorts;
+    }
+
 }

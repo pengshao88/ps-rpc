@@ -43,4 +43,16 @@ public class InstanceMeta {
     public static InstanceMeta http(String post, Integer port) {
         return new InstanceMeta("http", post, port, "");
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+
+        if (o instanceof InstanceMeta instanceMeta) {
+            return this.host.equals(instanceMeta.getHost()) && this.port == instanceMeta.getPort();
+        }
+        return false;
+    }
 }
