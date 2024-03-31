@@ -9,6 +9,7 @@ import cn.pengshao.rpc.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.*;
+import java.net.SocketTimeoutException;
 import java.util.*;
 
 
@@ -24,12 +25,15 @@ public class PsInvocationHandler implements InvocationHandler {
     private final Class<?> service;
     private final RpcContext context;
     private final List<InstanceMeta> providers;
-    private final static OkHttpInvoker HTTP_INVOKER = new OkHttpInvoker();
+    private OkHttpInvoker httpInvoker;
 
     public PsInvocationHandler(Class<?> service, RpcContext context, List<InstanceMeta> providers) {
         this.service = service;
         this.context = context;
         this.providers = providers;
+        int timeout = Integer.parseInt(context.getParameters()
+                .getOrDefault("app.timeout", "1000"));
+        this.httpInvoker = new OkHttpInvoker(timeout);
     }
 
     @Override
@@ -37,9 +41,6 @@ public class PsInvocationHandler implements InvocationHandler {
         if (MethodUtils.checkLocalMethod(method.getName())) {
             return null;
         }
-        List<InstanceMeta> routedProviders = context.getRouter().route(providers);
-        InstanceMeta instanceMeta = context.getLoadBalancer().choose(routedProviders);
-        String url = instanceMeta.toUrl();
 
         RpcRequest request = new RpcRequest();
         request.setService(service.getCanonicalName());
@@ -51,24 +52,41 @@ public class PsInvocationHandler implements InvocationHandler {
 //        Class<? extends Type> actualType = method.getGenericReturnType().getClass();
 //        JSON.parseObject(response, new TypeReference<RpcResponse<actualType>>());
 
-        for (Filter filter : this.context.getFilters()) {
-            Object preResult = filter.preFilter(request);
-            if(preResult != null) {
-                log.debug(filter.getClass().getName() + " ==> prefilter: " + preResult);
-                return preResult;
-            }
-        }
+        int retries = Integer.parseInt(context.getParameters()
+                .getOrDefault("app.retries", "1"));
+        while (retries-- > 0) {
+            try {
+                for (Filter filter : this.context.getFilters()) {
+                    Object preResult = filter.preFilter(request);
+                    if(preResult != null) {
+                        log.debug(filter.getClass().getName() + " ==> prefilter: " + preResult);
+                        return preResult;
+                    }
+                }
 
-        log.info("loadBalancer.choose(urls) ===> " + url);
-        RpcResponse<Object> rpcResponse = HTTP_INVOKER.post(request, url);
-        Object result = castReturnResult(method, rpcResponse);
-        for (Filter filter : this.context.getFilters()) {
-            Object filterResult = filter.postFilter(request, rpcResponse, result);
-            if(filterResult != null) {
-                return filterResult;
+                List<InstanceMeta> routedProviders = context.getRouter().route(providers);
+                InstanceMeta instanceMeta = context.getLoadBalancer().choose(routedProviders);
+                String url = instanceMeta.toUrl();
+
+                log.info("loadBalancer.choose(urls) ===> " + url);
+                RpcResponse<Object> rpcResponse = httpInvoker.post(request, url);
+                Object result = castReturnResult(method, rpcResponse);
+                for (Filter filter : this.context.getFilters()) {
+                    Object filterResult = filter.postFilter(request, rpcResponse, result);
+                    if(filterResult != null) {
+                        return filterResult;
+                    }
+                }
+                return result;
+            } catch (Exception e) {
+                if (!(e.getCause() instanceof SocketTimeoutException)) {
+                    throw new RpcException(e, ErrorCodeEnum.UNKNOWN_ERROR.getErrorMsg());
+                }
+
+                log.warn("invoke fail", e);
             }
         }
-        return result;
+        return null;
     }
 
     private static Object castReturnResult(Method method, RpcResponse<?> rpcResponse) {

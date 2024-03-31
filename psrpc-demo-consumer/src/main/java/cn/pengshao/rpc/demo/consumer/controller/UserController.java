@@ -26,4 +26,9 @@ public class UserController {
         return userService.findById(id);
     }
 
+    @GetMapping("find")
+    public User find(@RequestParam("timeout") int timeout) {
+        return userService.find(timeout);
+    }
+
 }

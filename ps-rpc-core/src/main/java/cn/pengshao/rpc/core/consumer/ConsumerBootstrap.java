@@ -45,11 +45,17 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     private String env;
     @Value("${app.version}")
     private String version;
+    @Value("${app.retries}")
+    private String retries;
+    @Value("${app.timeout}")
+    private String timeout;
 
     public void start() {
         RpcContext context = new RpcContext();
         context.setRouter(applicationContext.getBean(Router.class));
         context.setLoadBalancer(applicationContext.getBean(LoadBalancer.class));
+        context.getParameters().put("app.retries", String.valueOf(retries));
+        context.getParameters().put("app.timeout", String.valueOf(timeout));
         List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
         context.setFilters(filters);
 

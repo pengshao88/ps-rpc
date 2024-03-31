@@ -1,8 +1,11 @@
 package cn.pengshao.rpc.demo.provider.service;
 
 import cn.pengshao.rpc.core.annotaion.PsProvider;
+import cn.pengshao.rpc.core.api.RpcException;
+import cn.pengshao.rpc.core.enums.ErrorCodeEnum;
 import cn.pengshao.rpc.demo.api.User;
 import cn.pengshao.rpc.demo.api.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -18,6 +21,7 @@ import java.util.Random;
  * @Author: yezp
  * @date 2024/3/6 23:41
  */
+@Slf4j
 @PsProvider
 @Component
 public class UserServiceImpl implements UserService {
@@ -109,6 +113,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public User[] findUsers(User[] users) {
         return users;
+    }
+
+    @Override
+    public User find(int timeout) {
+        long start = System.currentTimeMillis();
+        try {
+            if ("8081".equals(environment.getProperty("server.port"))) {
+                Thread.sleep(timeout);
+            }
+        } catch (Exception e) {
+            throw new RpcException(ErrorCodeEnum.INTERRUPTED_EXCEPTION.getErrorMsg());
+        }
+        log.info("find user cost:{}", System.currentTimeMillis() - start);
+        return new User(timeout, "timeout");
     }
 
 }

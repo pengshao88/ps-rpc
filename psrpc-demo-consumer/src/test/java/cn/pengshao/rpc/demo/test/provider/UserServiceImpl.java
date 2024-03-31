@@ -110,4 +110,9 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
+    @Override
+    public User find(int timeout) {
+        return new User(timeout, "");
+    }
+
 }

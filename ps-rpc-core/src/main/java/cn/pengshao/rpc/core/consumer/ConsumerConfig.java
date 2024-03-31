@@ -58,10 +58,10 @@ public class ConsumerConfig {
         return new ZkRegistryCenter();
     }
 
-    @Bean
-    public Filter cacheFilter() {
-        return new CacheFilter();
-    }
+//    @Bean
+//    public Filter cacheFilter() {
+//        return new CacheFilter();
+//    }
 
 //    @Bean
 //    public Filter mockFilter() {
