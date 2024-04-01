@@ -4,6 +4,7 @@ import cn.pengshao.rpc.core.api.Filter;
 import cn.pengshao.rpc.core.api.LoadBalancer;
 import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.api.Router;
+import cn.pengshao.rpc.core.cluster.GrayRouter;
 import cn.pengshao.rpc.core.cluster.RoundLoadBalancer;
 import cn.pengshao.rpc.core.filter.CacheFilter;
 import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
@@ -26,6 +27,9 @@ import org.springframework.core.annotation.Order;
 @Configuration
 public class ConsumerConfig {
 
+    @Value("${app.grayRatio}")
+    private int grayRatio;
+
     @Bean
     ConsumerBootstrap createConsumerBootstrap() {
         return new ConsumerBootstrap();
@@ -44,7 +48,7 @@ public class ConsumerConfig {
 
     @Bean
     public Router router() {
-        return Router.DEFAULT;
+        return new GrayRouter(grayRatio);
     }
 
     @Bean
