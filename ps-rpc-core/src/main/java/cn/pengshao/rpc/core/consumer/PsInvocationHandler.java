@@ -143,7 +143,7 @@ public class PsInvocationHandler implements InvocationHandler {
                     throw new RpcException(e, ErrorCodeEnum.UNKNOWN_ERROR.getErrorMsg());
                 }
 
-//                log.warn("invoke fail", e);
+                log.warn("invoke fail", e);
             }
         }
         return null;

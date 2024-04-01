@@ -1,9 +1,11 @@
 package cn.pengshao.rpc.core.meta;
 
+import com.alibaba.fastjson.JSON;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,7 +25,8 @@ public class InstanceMeta {
     private String context;
     // online or offline
     private boolean status;
-    private Map<String, String> parameters;
+    // 可以存储机房、环境、版本等信息
+    private Map<String, String> parameters = new HashMap<>();
 
     public InstanceMeta(String schema, String host, int port, String context) {
         this.schema = schema;
@@ -54,5 +57,9 @@ public class InstanceMeta {
             return this.host.equals(instanceMeta.getHost()) && this.port == instanceMeta.getPort();
         }
         return false;
+    }
+
+    public String toMetas(){
+        return JSON.toJSONString(this.parameters);
     }
 }

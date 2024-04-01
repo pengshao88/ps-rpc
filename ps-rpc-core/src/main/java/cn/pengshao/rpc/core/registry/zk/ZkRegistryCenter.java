@@ -6,6 +6,7 @@ import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.meta.ServiceMeta;
 import cn.pengshao.rpc.core.registry.ChangedListener;
 import cn.pengshao.rpc.core.registry.Event;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -15,6 +16,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,13 +63,14 @@ public class ZkRegistryCenter implements RegistryCenter {
         try {
             // 创建服务的持久化节点
             if (client.checkExists().forPath(servicePath) == null) {
-                client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath);
+                client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, service.toMetas().getBytes());
             }
 
             // 创建实例的临时性节点
             String instancePath = servicePath + "/" + instance.toPath();
             log.info(" ===> zk client register. path:" + instancePath);
-            client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
+            // 创建实例节点 并且把元数据信息存储到节点中
+            client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, instance.toMetas().getBytes());
         } catch (Exception e) {
             throw new RpcException(e);
         }
@@ -99,16 +102,28 @@ public class ZkRegistryCenter implements RegistryCenter {
             List<String> nodes = client.getChildren().forPath(servicePath);
             log.info(" ===> zk client fetchAll.");
             nodes.forEach(log::info);
-            return mapInstances(nodes);
+            return mapInstances(nodes, servicePath);
         } catch (Exception e) {
             throw new RpcException(e);
         }
     }
 
-    private List<InstanceMeta> mapInstances(List<String> nodes) {
+    private List<InstanceMeta> mapInstances(List<String> nodes, String servicePath) {
         return nodes.stream().map(node -> {
             String[] strArr = node.split("_");
-            return InstanceMeta.http(strArr[0], Integer.parseInt(strArr[1]));
+            InstanceMeta instanceMeta = InstanceMeta.http(strArr[0], Integer.parseInt(strArr[1]));
+            String instancePath = servicePath + "/" + node;
+            byte[] bytes;
+            try {
+                bytes = client.getData().forPath(instancePath);
+            } catch (Exception e) {
+                throw new RpcException(e);
+            }
+            // 拿到节点的元数据
+            HashMap params = JSON.parseObject(new String(bytes), HashMap.class);
+            log.debug("instance:{} params:{}", instanceMeta.toUrl(), params);
+            instanceMeta.setParameters(params);
+            return instanceMeta;
         }).collect(Collectors.toList());
     }
 

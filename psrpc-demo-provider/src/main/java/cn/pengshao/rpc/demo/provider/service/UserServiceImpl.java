@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Integer id) {
-        return new User(id, "pengshao_"
+        return new User(id, "pengshao-V1-"
                 + environment.getProperty("server.port") + "_"
                 + System.currentTimeMillis());
     }

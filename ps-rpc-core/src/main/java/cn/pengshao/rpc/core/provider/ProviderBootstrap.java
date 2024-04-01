@@ -49,6 +49,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
     private String env;
     @Value("${app.version}")
     private String version;
+    // Spel spring language 可以直接将 json 转成 map
+    @Value("#{${app.metas}}")
+    Map<String, String> metas;
 
     @PostConstruct
     public void init() {
@@ -78,6 +81,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
             registryCenter.start();
             String ip = InetAddress.getLocalHost().getHostAddress();            ;
             instance = InstanceMeta.http(ip, Integer.parseInt(port));
+            instance.getParameters().putAll(metas);
             skeleton.keySet().forEach(this::registerService);
         } catch (UnknownHostException e) {
             throw new RpcException(e);
