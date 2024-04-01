@@ -43,12 +43,12 @@ public class TypeUtils {
             return resultArray;
         }
 
-        if (origin instanceof JSONObject jsonObject) {
+        if (origin instanceof HashMap map) {
+            JSONObject jsonObject = new JSONObject(map);
             return jsonObject.toJavaObject(type);
         }
 
-        if (origin instanceof HashMap map) {
-            JSONObject jsonObject = new JSONObject(map);
+        if (origin instanceof JSONObject jsonObject) {
             return jsonObject.toJavaObject(type);
         }
 
@@ -75,11 +75,16 @@ public class TypeUtils {
 
     public static Object castMethod(Method method, Object data) {
         Class<?> type = method.getReturnType();
+        Type genericReturnType = method.getGenericReturnType();
+        return castGeneric(data, type, genericReturnType);
+    }
+
+    public static Object castGeneric(Object data, Class<?> type, Type genericReturnType) {
         log.debug("method.getReturnType() = " + type);
+        log.debug("method.getGenericReturnType() = " + genericReturnType);
         if (data instanceof JSONObject jsonResult) {
             if (Map.class.isAssignableFrom(type)) {
                 Map resultMap = new HashMap();
-                Type genericReturnType = method.getGenericReturnType();
                 log.debug("method.getGenericReturnType() :{}", genericReturnType);
                 if (genericReturnType instanceof ParameterizedType parameterizedType) {
                     Class<?> keyType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
@@ -95,8 +100,8 @@ public class TypeUtils {
                 return resultMap;
             }
             return jsonResult.toJavaObject(type);
-        } else if (data instanceof JSONArray jsonArray) {
-            Object[] array = jsonArray.toArray();
+        } else if (data instanceof List list) {
+            Object[] array = list.toArray();
             if (type.isArray()) {
                 Class<?> componentType = type.getComponentType();
                 Object resultArray = Array.newInstance(componentType, array.length);
@@ -110,7 +115,6 @@ public class TypeUtils {
                 return resultArray;
             } else if (List.class.isAssignableFrom(type)) {
                 List<Object> resultList = new ArrayList<>(array.length);
-                Type genericReturnType = method.getGenericReturnType();
                 log.debug("method.getGenericReturnType():{}", genericReturnType);
                 if (genericReturnType instanceof ParameterizedType parameterizedType) {
                     Type actualType = parameterizedType.getActualTypeArguments()[0];
@@ -126,7 +130,7 @@ public class TypeUtils {
                 return null;
             }
         } else {
-            return TypeUtils.cast(data, method.getReturnType());
+            return TypeUtils.cast(data, type);
         }
     }
 

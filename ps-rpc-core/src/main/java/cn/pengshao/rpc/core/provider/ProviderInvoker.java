@@ -11,6 +11,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +39,7 @@ public class ProviderInvoker {
             }
 
             Method method = providerMeta.getMethod();
-            Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
+            Object[] args = processArgs(request.getArgs(), method.getParameterTypes(), method.getGenericParameterTypes());
             Object result = method.invoke(providerMeta.getServiceImpl(), args);
             return new RpcResponse<>(true, result, null);
         } catch (InvocationTargetException e) {
@@ -48,11 +49,12 @@ public class ProviderInvoker {
         }
     }
 
-    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
+    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes, Type[] genericParameterTypes) {
         if (args == null || args.length == 0) return args;
         Object[] actualArr = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
-            actualArr[i] = TypeUtils.cast(args[i], parameterTypes[i]);
+            // 传入参数类型和泛型类型
+            actualArr[i] = TypeUtils.castGeneric(args[i], parameterTypes[i], genericParameterTypes[i]);
         }
         return actualArr;
     }
