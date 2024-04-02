@@ -44,7 +44,7 @@ public class ProviderInvoker {
             return new RpcResponse<>(true, result, null);
         } catch (InvocationTargetException e) {
             return new RpcResponse<>(false, null, new RpcException(e.getTargetException().getMessage()));
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             return new RpcResponse<>(false, null, new RpcException(e.getMessage()));
         }
     }

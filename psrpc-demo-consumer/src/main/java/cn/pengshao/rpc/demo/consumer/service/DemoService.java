@@ -49,13 +49,26 @@ public class DemoService {
         hashMap.put("ps", new User(9999, "ps"));
         log.info("[14] test case result:{}", userService.getMap(hashMap));
         log.info("[15] test case result:{}", userService.getFlag(false));
-
-        // todo ArrayList ??
-        log.info("Case 17. >>===[测试参数和返回值都是User[]类型]===");
+        log.info("[16] test case >>===[测试参数和返回值都是User[]类型]===");
         User[] users = new User[]{
                 new User(100, "ps-100"),
                 new User(101, "ps-101")};
         Arrays.stream(userService.findUsers(users)).forEach(user -> log.info("user:{}", user));
+
+        log.info("[17] test case >>===[测试服务端抛出一个RuntimeException异常]===");
+        try {
+            User userEx = userService.ex(true);
+            log.info(" userEx:{}", userEx);
+        } catch (RuntimeException e) {
+            log.info(" ===> exception: " + e.getMessage());
+        }
+
+        log.info("[18] test case >>===[测试服务端抛出一个超时重试后成功的场景]===");
+        // 超时设置的【漏斗原则】
+        // A 2000 -> B 1500 -> C 1200 -> D 1000
+        long start = System.currentTimeMillis();
+        userService.find(1100);
+        log.info("userService.find take " + (System.currentTimeMillis()-start) + " ms");
     }
 
 }

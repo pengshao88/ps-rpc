@@ -115,6 +115,13 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
+    @Override
+    public User ex(boolean flag) {
+        if (flag) {
+            throw new RuntimeException("throw an exception.");
+        }
+        return new User(RANDOM.nextInt(3000), "ex");
+    }
 
     @Override
     public User find(int timeout) {
