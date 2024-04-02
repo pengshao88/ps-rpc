@@ -20,7 +20,11 @@ import java.util.*;
 public class TypeUtils {
 
     public static Object cast(Object origin, Class<?> type) {
-        if (origin == null) return null;
+        log.debug("cast: origin = " + origin);
+        log.debug("cast: type = " + type);
+        if (origin == null) {
+            return null;
+        }
         Class<?> aClass = origin.getClass();
         if (type.isAssignableFrom(aClass)) {
             return origin;

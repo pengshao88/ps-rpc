@@ -47,6 +47,15 @@ public class InstanceMeta {
         return new InstanceMeta("http", post, port, "");
     }
 
+    public InstanceMeta addParams(Map<String, String> params) {
+        this.parameters.putAll(params);
+        return this;
+    }
+
+    public String toMetas(){
+        return JSON.toJSONString(this.parameters);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null) {
@@ -57,9 +66,5 @@ public class InstanceMeta {
             return this.host.equals(instanceMeta.getHost()) && this.port == instanceMeta.getPort();
         }
         return false;
-    }
-
-    public String toMetas(){
-        return JSON.toJSONString(this.parameters);
     }
 }

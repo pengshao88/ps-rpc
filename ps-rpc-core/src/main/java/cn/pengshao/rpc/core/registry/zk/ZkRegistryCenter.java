@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -120,9 +121,9 @@ public class ZkRegistryCenter implements RegistryCenter {
                 throw new RpcException(e);
             }
             // 拿到节点的元数据
-            HashMap params = JSON.parseObject(new String(bytes), HashMap.class);
+            Map<String, Object> params = JSON.parseObject(new String(bytes));
             log.debug("instance:{} params:{}", instanceMeta.toUrl(), params);
-            instanceMeta.setParameters(params);
+            params.forEach((k, v) -> instanceMeta.getParameters().put(k, v == null ? null : v.toString()));
             return instanceMeta;
         }).collect(Collectors.toList());
     }

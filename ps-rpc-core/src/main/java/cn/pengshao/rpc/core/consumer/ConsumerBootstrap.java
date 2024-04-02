@@ -49,15 +49,15 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     private String retries;
     @Value("${app.timeout}")
     private String timeout;
+    @Value("${app.faultLimit}")
+    private int faultLimit;
+    @Value("${app.halfOpenInitialDelay}")
+    private int halfOpenInitialDelay;
+    @Value("${app.halfOpenDelay}")
+    private int halfOpenDelay;
 
     public void start() {
-        RpcContext context = new RpcContext();
-        context.setRouter(applicationContext.getBean(Router.class));
-        context.setLoadBalancer(applicationContext.getBean(LoadBalancer.class));
-        context.getParameters().put("app.retries", String.valueOf(retries));
-        context.getParameters().put("app.timeout", String.valueOf(timeout));
-        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
-        context.setFilters(filters);
+        RpcContext context = createContext();
 
         RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
         String[] beanNames = applicationContext.getBeanDefinitionNames();
@@ -66,9 +66,9 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
             // 查找带有PsConsumer 注解的字段，反射注入
             List<Field> fields = MethodUtils.findAnnotatedField(bean.getClass(), PsConsumer.class);
             for (Field field : fields) {
+                Class<?> service = field.getType();
+                String serviceName = service.getCanonicalName();
                 try {
-                    Class<?> service = field.getType();
-                    String serviceName = service.getCanonicalName();
                     Object consumer = stub.get(serviceName);
                     if (consumer == null) {
                         consumer = createRegistry(service, context, registryCenter);
@@ -78,11 +78,28 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                     field.setAccessible(true);
                     field.set(bean, consumer);
                 } catch (Exception e) {
-                    throw new RpcException(e);
+                    log.warn(" ==> Field[{}.{}] create consumer failed.", serviceName, field.getName());
+                    log.error("Ignore and print it as: ", e);
                 }
             }
         }
+    }
 
+    private RpcContext createContext() {
+        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
+        LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
+        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
+
+        RpcContext context = new RpcContext();
+        context.setRouter(router);
+        context.setLoadBalancer(loadBalancer);
+        context.setFilters(filters);
+        context.getParameters().put("app.retries", String.valueOf(retries));
+        context.getParameters().put("app.timeout", String.valueOf(timeout));
+        context.getParameters().put("app.halfOpenInitialDelay", String.valueOf(halfOpenInitialDelay));
+        context.getParameters().put("app.faultLimit", String.valueOf(faultLimit));
+        context.getParameters().put("app.halfOpenDelay", String.valueOf(halfOpenDelay));
+        return context;
     }
 
     private Object createRegistry(Class<?> service, RpcContext context, RegistryCenter registryCenter) {

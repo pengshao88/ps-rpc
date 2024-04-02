@@ -54,8 +54,13 @@ public class PsInvocationHandler implements InvocationHandler {
                 .getOrDefault("app.timeout", "1000"));
         this.httpInvoker = new OkHttpInvoker(timeout);
         ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
+        int halfOpenInitialDelay = Integer.parseInt(context.getParameters()
+                .getOrDefault("app.halfOpenInitialDelay", "10000"));
+        int halfOpenDelay = Integer.parseInt(context.getParameters()
+                .getOrDefault("app.halfOpenDelay", "60000"));
         // 延迟10s，每隔60s执行一次
-        scheduledExecutor.scheduleWithFixedDelay(this::halfOpen, 10, 60, TimeUnit.SECONDS);
+        scheduledExecutor.scheduleWithFixedDelay(this::halfOpen, halfOpenInitialDelay, halfOpenDelay,
+                TimeUnit.MICROSECONDS);
     }
 
     private void halfOpen() {
@@ -77,6 +82,9 @@ public class PsInvocationHandler implements InvocationHandler {
 
         int retries = Integer.parseInt(context.getParameters()
                 .getOrDefault("app.retries", "1"));
+        int faultLimit = Integer.parseInt(context.getParameters()
+                .getOrDefault("app.faultLimit", "10"));
+
         while (retries-- > 0) {
             try {
                 for (Filter filter : this.context.getFilters()) {
@@ -113,7 +121,7 @@ public class PsInvocationHandler implements InvocationHandler {
                         SlidingTimeWindow window = windows.computeIfAbsent(url, v -> new SlidingTimeWindow());
                         window.record(System.currentTimeMillis());
                         log.debug("instance {} in window with {}", url, window.getSum());
-                        if (window.getSum() >= 10) {
+                        if (window.getSum() >= faultLimit) {
                             isolate(instanceMeta);
                         }
                     }

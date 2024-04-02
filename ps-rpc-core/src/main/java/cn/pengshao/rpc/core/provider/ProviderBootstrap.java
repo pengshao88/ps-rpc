@@ -81,7 +81,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
             registryCenter.start();
             String ip = InetAddress.getLocalHost().getHostAddress();            ;
             instance = InstanceMeta.http(ip, Integer.parseInt(port));
-            instance.getParameters().putAll(metas);
+            instance.addParams(metas);
             skeleton.keySet().forEach(this::registerService);
         } catch (UnknownHostException e) {
             throw new RpcException(e);
