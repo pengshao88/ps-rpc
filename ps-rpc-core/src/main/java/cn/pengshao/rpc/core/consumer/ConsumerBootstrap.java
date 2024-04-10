@@ -37,29 +37,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     ApplicationContext applicationContext;
     Environment environment;
 
-    @Value("${app.id}")
-    private String app;
-    @Value("${app.namespace}")
-    private String namespace;
-    @Value("${app.env}")
-    private String env;
-    @Value("${app.version}")
-    private String version;
-    @Value("${app.retries}")
-    private String retries;
-    @Value("${app.timeout}")
-    private String timeout;
-    @Value("${app.faultLimit}")
-    private int faultLimit;
-    @Value("${app.halfOpenInitialDelay}")
-    private int halfOpenInitialDelay;
-    @Value("${app.halfOpenDelay}")
-    private int halfOpenDelay;
-
     public void start() {
-        RpcContext context = createContext();
-
+        RpcContext context = applicationContext.getBean(RpcContext.class);
         RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
+
         String[] beanNames = applicationContext.getBeanDefinitionNames();
         for (String beanName : beanNames) {
             Object bean = applicationContext.getBean(beanName);
@@ -85,27 +66,14 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         }
     }
 
-    private RpcContext createContext() {
-        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
-        LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
-        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
-
-        RpcContext context = new RpcContext();
-        context.setRouter(router);
-        context.setLoadBalancer(loadBalancer);
-        context.setFilters(filters);
-        context.getParameters().put("app.retries", String.valueOf(retries));
-        context.getParameters().put("app.timeout", String.valueOf(timeout));
-        context.getParameters().put("app.halfOpenInitialDelay", String.valueOf(halfOpenInitialDelay));
-        context.getParameters().put("app.faultLimit", String.valueOf(faultLimit));
-        context.getParameters().put("app.halfOpenDelay", String.valueOf(halfOpenDelay));
-        return context;
-    }
-
     private Object createRegistry(Class<?> service, RpcContext context, RegistryCenter registryCenter) {
         String serviceName = service.getCanonicalName();
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .app(app).namespace(namespace).env(env).name(serviceName).version(version).build();
+                .app(context.getParam("app.id"))
+                .namespace(context.getParam("app.namespace"))
+                .env(context.getParam("app.env"))
+                .name(serviceName)
+                .version(context.getParam("app.version")).build();
         List<InstanceMeta> providers = registryCenter.fetchAll(serviceMeta);
         log.info("fetchAll providers: " + providers);
 

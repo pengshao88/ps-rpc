@@ -1,9 +1,6 @@
 package cn.pengshao.rpc.core.consumer;
 
-import cn.pengshao.rpc.core.api.Filter;
-import cn.pengshao.rpc.core.api.LoadBalancer;
-import cn.pengshao.rpc.core.api.RegistryCenter;
-import cn.pengshao.rpc.core.api.Router;
+import cn.pengshao.rpc.core.api.*;
 import cn.pengshao.rpc.core.cluster.GrayRouter;
 import cn.pengshao.rpc.core.cluster.RoundLoadBalancer;
 import cn.pengshao.rpc.core.filter.CacheFilter;
@@ -18,6 +15,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
+import java.util.List;
+
 /**
  * Description:
  *
@@ -28,8 +27,26 @@ import org.springframework.core.annotation.Order;
 @Configuration
 public class ConsumerConfig {
 
-    @Value("${app.grayRatio}")
+    @Value("${app.grayRatio:10}")
     private int grayRatio;
+    @Value("${app.id:app}")
+    private String app;
+    @Value("${app.namespace:public}")
+    private String namespace;
+    @Value("${app.env:dev}")
+    private String env;
+    @Value("${app.version:1.0.0}")
+    private String version;
+    @Value("${app.retries:1}")
+    private String retries;
+    @Value("${app.timeout:1000}")
+    private String timeout;
+    @Value("${app.faultLimit:10}")
+    private int faultLimit;
+    @Value("${app.halfOpenInitialDelay:10000}")
+    private int halfOpenInitialDelay;
+    @Value("${app.halfOpenDelay:60000}")
+    private int halfOpenDelay;
 
     @Bean
     ConsumerBootstrap createConsumerBootstrap() {
@@ -68,13 +85,23 @@ public class ConsumerConfig {
         return new ParameterFilter();
     }
 
-//    @Bean
-//    public Filter cacheFilter() {
-//        return new CacheFilter();
-//    }
-
-//    @Bean
-//    public Filter mockFilter() {
-//        return new MockFilter();
-//    }
+    @Bean
+    public RpcContext createContext(@Autowired Router router,
+                                    @Autowired LoadBalancer loadBalancer,
+                                    @Autowired List<Filter> filters) {
+        RpcContext context = new RpcContext();
+        context.setRouter(router);
+        context.setLoadBalancer(loadBalancer);
+        context.setFilters(filters);
+        context.getParameters().put("app.id", app);
+        context.getParameters().put("app.namespace", namespace);
+        context.getParameters().put("app.env", env);
+        context.getParameters().put("app.version", version);
+        context.getParameters().put("app.retries", String.valueOf(retries));
+        context.getParameters().put("app.timeout", String.valueOf(timeout));
+        context.getParameters().put("app.halfOpenInitialDelay", String.valueOf(halfOpenInitialDelay));
+        context.getParameters().put("app.faultLimit", String.valueOf(faultLimit));
+        context.getParameters().put("app.halfOpenDelay", String.valueOf(halfOpenDelay));
+        return context;
+    }
 }

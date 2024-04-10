@@ -38,20 +38,23 @@ public class ProviderBootstrap implements ApplicationContextAware {
     private RegistryCenter registryCenter;
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
-    @Value("${server.port}")
     private String port;
-    private InstanceMeta instance;
-    @Value("${app.id}")
     private String app;
-    @Value("${app.namespace}")
     private String namespace;
-    @Value("${app.env}")
     private String env;
-    @Value("${app.version}")
     private String version;
-    // Spel spring language 可以直接将 json 转成 map
-    @Value("#{${app.metas}}")
-    Map<String, String> metas;
+    private Map<String, String> metas;
+    private InstanceMeta instance;
+
+    public ProviderBootstrap(String port, String app, String namespace,
+                             String env, String version, Map<String, String> metas) {
+        this.port = port;
+        this.app = app;
+        this.namespace = namespace;
+        this.env = env;
+        this.metas = metas;
+        this.version = version;
+    }
 
     @PostConstruct
     public void init() {

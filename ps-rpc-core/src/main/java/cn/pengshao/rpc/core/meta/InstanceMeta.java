@@ -44,7 +44,7 @@ public class InstanceMeta {
     }
 
     public static InstanceMeta http(String post, Integer port) {
-        return new InstanceMeta("http", post, port, "");
+        return new InstanceMeta("http", post, port, "psrpc");
     }
 
     public InstanceMeta addParams(Map<String, String> params) {
