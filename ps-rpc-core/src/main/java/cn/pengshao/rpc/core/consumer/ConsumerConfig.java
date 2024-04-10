@@ -18,7 +18,7 @@ import org.springframework.core.annotation.Order;
 import java.util.List;
 
 /**
- * Description:
+ * Description: Config for consumer
  *
  * @Author: yezp
  * @date 2024/3/10 22:51

@@ -27,7 +27,7 @@ import java.util.Map;
 @Import({SpringBootTransport.class})
 public class ProviderConfig {
 
-    @Value("${server.port:8081}")
+    @Value("${server.port:8080}")
     private String port;
     private InstanceMeta instance;
     @Value("${app.id:psrpc}")

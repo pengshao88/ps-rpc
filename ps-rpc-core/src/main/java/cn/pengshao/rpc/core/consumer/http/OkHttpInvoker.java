@@ -10,7 +10,7 @@ import okhttp3.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Description:
+ * Description: Interface for http invoker
  *
  * @Author: yezp
  * @date 2024/3/21 21:58

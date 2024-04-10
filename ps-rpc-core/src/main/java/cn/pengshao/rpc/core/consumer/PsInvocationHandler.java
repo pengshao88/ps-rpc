@@ -176,12 +176,12 @@ public class PsInvocationHandler implements InvocationHandler {
         if (rpcResponse.isStatus()) {
             return TypeUtils.castMethod(method, rpcResponse.getData());
         } else {
-            Exception exception = rpcResponse.getEx();
-            if(exception instanceof RpcException ex) {
-                throw ex;
-            } else {
-                throw new RpcException(exception, ErrorCodeEnum.UNKNOWN_ERROR.getErrorMsg());
+            RpcException exception = rpcResponse.getEx();
+            if(exception != null) {
+                log.error("response error.", exception);
+                throw exception;
             }
+            return null;
         }
     }
 }

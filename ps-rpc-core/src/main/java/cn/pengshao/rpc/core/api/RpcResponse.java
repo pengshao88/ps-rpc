@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Description:
+ * Description: response for RPC call
  *
  * @Author: yezp
  * @date 2024/3/7 22:30
@@ -17,6 +17,6 @@ public class RpcResponse<T> {
 
     boolean status;
     T data;
-    Exception ex;
+    RpcException ex;
 
 }
