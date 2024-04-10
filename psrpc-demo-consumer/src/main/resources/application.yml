@@ -13,6 +13,9 @@ app:
   retries: 2
   timeout: 1000
   grayRatio: 30
+  faultLimit: 10
+  halfOpenInitialDelay: 10000
+  halfOpenDelay: 60000
 
 logging:
   level:

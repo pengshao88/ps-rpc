@@ -60,7 +60,7 @@ public class PsInvocationHandler implements InvocationHandler {
                 .getOrDefault("app.halfOpenDelay", "60000"));
         // 延迟10s，每隔60s执行一次
         scheduledExecutor.scheduleWithFixedDelay(this::halfOpen, halfOpenInitialDelay, halfOpenDelay,
-                TimeUnit.MICROSECONDS);
+                TimeUnit.MILLISECONDS);
     }
 
     private void halfOpen() {

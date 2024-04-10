@@ -1,5 +1,6 @@
 package cn.pengshao.rpc.core.provider;
 
+import cn.pengshao.rpc.core.api.RpcContext;
 import cn.pengshao.rpc.core.api.RpcException;
 import cn.pengshao.rpc.core.api.RpcRequest;
 import cn.pengshao.rpc.core.api.RpcResponse;
@@ -7,6 +8,7 @@ import cn.pengshao.rpc.core.enums.ErrorCodeEnum;
 import cn.pengshao.rpc.core.meta.ProviderMeta;
 import cn.pengshao.rpc.core.util.TypeUtils;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
@@ -22,6 +24,7 @@ import java.util.Optional;
  * @date 2024/3/21 22:29
  */
 @Data
+@Slf4j
 public class ProviderInvoker {
 
     private MultiValueMap<String, ProviderMeta> skeleton;
@@ -31,6 +34,12 @@ public class ProviderInvoker {
     }
 
     public RpcResponse<Object> invoke(RpcRequest request) {
+        log.debug(" ===> providerInvoker invoke request:{}", request);
+        if (!request.getParams().isEmpty()) {
+            request.getParams().forEach(RpcContext::setContextParameter);
+        }
+
+        RpcResponse<Object> rpcResponse;
         List<ProviderMeta> providerMetas = skeleton.get(request.getService());
         try {
             ProviderMeta providerMeta = findProviderMeta(providerMetas, request.getMethodSign());
@@ -41,12 +50,17 @@ public class ProviderInvoker {
             Method method = providerMeta.getMethod();
             Object[] args = processArgs(request.getArgs(), method.getParameterTypes(), method.getGenericParameterTypes());
             Object result = method.invoke(providerMeta.getServiceImpl(), args);
-            return new RpcResponse<>(true, result, null);
+            rpcResponse = new RpcResponse<>(true, result, null);
         } catch (InvocationTargetException e) {
-            return new RpcResponse<>(false, null, new RpcException(e.getTargetException().getMessage()));
+            rpcResponse =  new RpcResponse<>(false, null, new RpcException(e.getTargetException().getMessage()));
         } catch (IllegalAccessException | IllegalArgumentException e) {
-            return new RpcResponse<>(false, null, new RpcException(e.getMessage()));
+            rpcResponse =  new RpcResponse<>(false, null, new RpcException(e.getMessage()));
+        } finally {
+            // 防止内存泄露和上下文污染
+            RpcContext.CONTEXT_PARAMETERS.get().clear();
         }
+        log.debug(" ===> provider.invoke() = {}", rpcResponse);
+        return rpcResponse;
     }
 
     private Object[] processArgs(Object[] args, Class<?>[] parameterTypes, Type[] genericParameterTypes) {

@@ -1,6 +1,7 @@
 package cn.pengshao.rpc.demo.consumer.service;
 
 import cn.pengshao.rpc.core.annotaion.PsConsumer;
+import cn.pengshao.rpc.core.api.RpcContext;
 import cn.pengshao.rpc.demo.api.User;
 import cn.pengshao.rpc.demo.api.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +70,17 @@ public class DemoService {
         long start = System.currentTimeMillis();
         userService.find(1100);
         log.info("userService.find take " + (System.currentTimeMillis()-start) + " ms");
+
+        log.info("[19] test case >>===[测试通过Context跨消费者和提供者进行传参]===");
+        String Key_Version = "rpc.version";
+        RpcContext.setContextParameter(Key_Version, "v8");
+        String version = userService.echoParameter(Key_Version);
+        log.info(" ===> echo parameter from c->p->c: " + Key_Version + " -> " + version);
+
+        String Key_Message = "rpc.message";
+        RpcContext.setContextParameter("rpc.message", "this is a test message");
+        String message = userService.echoParameter("rpc.message");
+        log.info(" ===> echo parameter from c->p->c: " + Key_Message + " -> " + message);
     }
 
 }

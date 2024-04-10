@@ -7,6 +7,7 @@ import cn.pengshao.rpc.core.api.Router;
 import cn.pengshao.rpc.core.cluster.GrayRouter;
 import cn.pengshao.rpc.core.cluster.RoundLoadBalancer;
 import cn.pengshao.rpc.core.filter.CacheFilter;
+import cn.pengshao.rpc.core.filter.ParameterFilter;
 import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,11 @@ public class ConsumerConfig {
     @ConditionalOnMissingBean
     public RegistryCenter consumer_registryCenter() {
         return new ZkRegistryCenter();
+    }
+
+    @Bean
+    public Filter defaultFilter() {
+        return new ParameterFilter();
     }
 
 //    @Bean

@@ -1,6 +1,7 @@
 package cn.pengshao.rpc.demo.provider.service;
 
 import cn.pengshao.rpc.core.annotaion.PsProvider;
+import cn.pengshao.rpc.core.api.RpcContext;
 import cn.pengshao.rpc.core.api.RpcException;
 import cn.pengshao.rpc.core.enums.ErrorCodeEnum;
 import cn.pengshao.rpc.demo.api.User;
@@ -143,6 +144,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void setTimeoutPorts(String timeoutPorts) {
         this.timeoutPorts = timeoutPorts;
+    }
+
+    @Override
+    public String echoParameter(String key) {
+        log.debug(" RpcContext.ContextParameters:");
+        for (Map.Entry<String, String> entry : RpcContext.CONTEXT_PARAMETERS.get().entrySet()) {
+            log.debug("key:{},value:{}", entry.getKey(), entry.getValue());
+        }
+        return RpcContext.getContextParameter(key);
     }
 
 }
