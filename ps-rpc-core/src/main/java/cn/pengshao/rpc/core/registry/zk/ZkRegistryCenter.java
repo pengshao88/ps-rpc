@@ -16,6 +16,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,10 +37,17 @@ public class ZkRegistryCenter implements RegistryCenter {
     String root;
 
     private CuratorFramework client = null;
-    private TreeCache treeCache;
+    private List<TreeCache> caches = new ArrayList<>();
+
+    private boolean running = false;
 
     @Override
-    public void start() {
+    public synchronized void start() {
+        if (running) {
+            log.info(" ===> zk client has started to server[" + servers + "/" + root + "], ignored.");
+            return;
+        }
+
         // 重试策略 1 2 4 8
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         client = CuratorFrameworkFactory.builder()
@@ -49,12 +57,18 @@ public class ZkRegistryCenter implements RegistryCenter {
                 .build();
         log.info(" ===> zk client starting.");
         client.start();
+        running = true;
     }
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
+        if (!running) {
+            log.info(" ===> zk client isn't running to server[" + servers + "/" + root + "], ignored.");
+            return;
+        }
+
         log.info(" ===> zk client stopping.");
-        treeCache.close();
+        caches.forEach(TreeCache::close);
         client.close();
     }
 
@@ -130,16 +144,23 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @Override
     public void subscribe(ServiceMeta service, ChangedListener changedListener) {
-        treeCache = TreeCache.newBuilder(client, "/" + service)
+        final TreeCache cache = TreeCache.newBuilder(client, "/"+service.toPath())
                 .setCacheData(true).setMaxDepth(2).build();
         try {
-            treeCache.getListenable().addListener((curatorFramework, event) -> {
-                // 有任何节点变动这里都会执行
-                log.info(" ===> zk client subscribe. event:" + event);
-                List<InstanceMeta> nodes = fetchAll(service);
-                changedListener.fire(new Event(nodes));
-            });
-            treeCache.start();
+            cache.getListenable().addListener(
+                    (curator, event) -> {
+                        synchronized (ZkRegistryCenter.class) {
+                            if (running) {
+                                // 有任何节点变动这里会执行
+                                log.info("zk subscribe event: " + event);
+                                List<InstanceMeta> nodes = fetchAll(service);
+                                changedListener.fire(new Event(nodes));
+                            }
+                        }
+                    }
+            );
+            cache.start();
+            caches.add(cache);
         } catch (Exception e) {
             throw new RpcException(e);
         }

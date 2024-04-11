@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <psrpc.version>1.0-SNAPSHOT</psrpc.version>
+        <psrpc.version>2.0.0-SNAPSHOT</psrpc.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -137,18 +137,6 @@
                     <doclint>none</doclint>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.sonatype.central</groupId>
-                <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.4.0</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <publishingServerId>central</publishingServerId>
-                    <tokenAuth>true</tokenAuth>
-                    <autoPublish>true</autoPublish>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
@@ -171,6 +159,26 @@
                             </execution>
                         </executions>
                     </plugin>
+
+<!--                    配置方式：https://central.sonatype.org/publish/publish-portal-maven/#deploymentname -->
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.4.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <tokenAuth>true</tokenAuth>
+                            <autoPublish>true</autoPublish>
+                            <excludeArtifacts>
+<!--                                <artifact>psrpc-core</artifact>-->
+                                <excludeArtifact>psrpc-demo-api</excludeArtifact>
+                                <excludeArtifact>psrpc-demo-provider</excludeArtifact>
+                                <excludeArtifact>psrpc-demo-consumer</excludeArtifact>
+                            </excludeArtifacts>
+                        </configuration>
+                    </plugin>
+
                 </plugins>
             </build>
         </profile>
