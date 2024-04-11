@@ -6,7 +6,7 @@
     <parent>
         <groupId>cn.pengshao</groupId>
         <artifactId>ps-rpc</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${psrpc.version}</version>
     </parent>
 
     <artifactId>psrpc-demo-consumer</artifactId>
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>cn.pengshao</groupId>
             <artifactId>psrpc-demo-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${psrpc.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -57,14 +57,14 @@
         <dependency>
             <groupId>cn.pengshao</groupId>
             <artifactId>ps-rpc-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${psrpc.version}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>cn.pengshao</groupId>
             <artifactId>psrpc-demo-provider</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${psrpc.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

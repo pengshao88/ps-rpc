@@ -1,15 +1,13 @@
 package cn.pengshao.rpc.core.consumer;
 
 import cn.pengshao.rpc.core.annotaion.PsConsumer;
-import cn.pengshao.rpc.core.api.*;
+import cn.pengshao.rpc.core.api.RegistryCenter;
+import cn.pengshao.rpc.core.api.RpcContext;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.meta.ServiceMeta;
-import cn.pengshao.rpc.core.registry.ChangedListener;
-import cn.pengshao.rpc.core.registry.Event;
 import cn.pengshao.rpc.core.util.MethodUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -17,11 +15,9 @@ import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Description:
