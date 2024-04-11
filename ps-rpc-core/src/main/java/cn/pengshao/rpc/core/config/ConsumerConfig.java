@@ -1,8 +1,9 @@
-package cn.pengshao.rpc.core.consumer;
+package cn.pengshao.rpc.core.config;
 
 import cn.pengshao.rpc.core.api.*;
 import cn.pengshao.rpc.core.cluster.GrayRouter;
 import cn.pengshao.rpc.core.cluster.RoundLoadBalancer;
+import cn.pengshao.rpc.core.consumer.ConsumerBootstrap;
 import cn.pengshao.rpc.core.filter.CacheFilter;
 import cn.pengshao.rpc.core.filter.ParameterFilter;
 import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
@@ -13,6 +14,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 
 import java.util.List;
@@ -25,28 +27,13 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
+@Import({AppConfigProperties.class, ConsumerConfigProperties.class})
 public class ConsumerConfig {
 
-    @Value("${app.grayRatio:10}")
-    private int grayRatio;
-    @Value("${app.id:app}")
-    private String app;
-    @Value("${app.namespace:public}")
-    private String namespace;
-    @Value("${app.env:dev}")
-    private String env;
-    @Value("${app.version:1.0.0}")
-    private String version;
-    @Value("${app.retries:1}")
-    private String retries;
-    @Value("${app.timeout:1000}")
-    private String timeout;
-    @Value("${app.faultLimit:10}")
-    private int faultLimit;
-    @Value("${app.halfOpenInitialDelay:10000}")
-    private int halfOpenInitialDelay;
-    @Value("${app.halfOpenDelay:60000}")
-    private int halfOpenDelay;
+    @Autowired
+    AppConfigProperties appConfigProperties;
+    @Autowired
+    ConsumerConfigProperties consumerConfigProperties;
 
     @Bean
     ConsumerBootstrap createConsumerBootstrap() {
@@ -55,8 +42,7 @@ public class ConsumerConfig {
 
     @Bean
     @Order(Integer.MIN_VALUE + 1)
-    public ApplicationRunner consumerBootstrapRunner(@Autowired ConsumerBootstrap consumerBootstrap,
-                                                     @Autowired RegistryCenter registryCenter) {
+    public ApplicationRunner consumerBootstrapRunner(@Autowired ConsumerBootstrap consumerBootstrap) {
         return x -> {
             log.info("consumerBootstrapRunner starting");
             consumerBootstrap.start();
@@ -66,7 +52,7 @@ public class ConsumerConfig {
 
     @Bean
     public Router router() {
-        return new GrayRouter(grayRatio);
+        return new GrayRouter(consumerConfigProperties.getGrayRatio());
     }
 
     @Bean
@@ -93,15 +79,15 @@ public class ConsumerConfig {
         context.setRouter(router);
         context.setLoadBalancer(loadBalancer);
         context.setFilters(filters);
-        context.getParameters().put("app.id", app);
-        context.getParameters().put("app.namespace", namespace);
-        context.getParameters().put("app.env", env);
-        context.getParameters().put("app.version", version);
-        context.getParameters().put("app.retries", String.valueOf(retries));
-        context.getParameters().put("app.timeout", String.valueOf(timeout));
-        context.getParameters().put("app.halfOpenInitialDelay", String.valueOf(halfOpenInitialDelay));
-        context.getParameters().put("app.faultLimit", String.valueOf(faultLimit));
-        context.getParameters().put("app.halfOpenDelay", String.valueOf(halfOpenDelay));
+        context.getParameters().put("app.id", appConfigProperties.getId());
+        context.getParameters().put("app.namespace", appConfigProperties.getNamespace());
+        context.getParameters().put("app.env", appConfigProperties.getEnv());
+        context.getParameters().put("app.version", appConfigProperties.getVersion());
+        context.getParameters().put("app.retries", String.valueOf(consumerConfigProperties.getRetries()));
+        context.getParameters().put("app.timeout", String.valueOf(consumerConfigProperties.getTimeout()));
+        context.getParameters().put("app.halfOpenInitialDelay", String.valueOf(consumerConfigProperties.getHalfOpenInitialDelay()));
+        context.getParameters().put("app.faultLimit", String.valueOf(consumerConfigProperties.getFaultLimit()));
+        context.getParameters().put("app.halfOpenDelay", String.valueOf(consumerConfigProperties.getHalfOpenDelay()));
         return context;
     }
 }

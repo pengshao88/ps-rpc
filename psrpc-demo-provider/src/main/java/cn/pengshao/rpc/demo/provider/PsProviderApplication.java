@@ -1,6 +1,6 @@
 package cn.pengshao.rpc.demo.provider;
 
-import cn.pengshao.rpc.core.provider.ProviderConfig;
+import cn.pengshao.rpc.core.config.ProviderConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;

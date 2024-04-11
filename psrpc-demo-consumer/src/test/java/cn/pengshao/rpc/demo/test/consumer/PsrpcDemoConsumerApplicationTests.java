@@ -33,7 +33,7 @@ public class PsrpcDemoConsumerApplicationTests {
 
         zkServer.start();
         context = SpringApplication.run(PsProviderApplication.class,
-                "--server.port=8094", "--psrpc.zkServer=localhost:2182",
+                "--server.port=8094", "--psrpc.zk.server=localhost:2182",
                 "--logging.level.cn.pengshao.rpc=info");
     }
 

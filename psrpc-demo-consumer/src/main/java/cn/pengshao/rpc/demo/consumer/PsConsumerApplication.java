@@ -1,6 +1,6 @@
 package cn.pengshao.rpc.demo.consumer;
 
-import cn.pengshao.rpc.core.consumer.ConsumerConfig;
+import cn.pengshao.rpc.core.config.ConsumerConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;

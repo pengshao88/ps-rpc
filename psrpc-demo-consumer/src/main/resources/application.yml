@@ -2,20 +2,21 @@ server:
   port: 8088
 
 psrpc:
-  zkServer: localhost:2181
-  zkRoot: psrpc
-
-app:
-  id: psrpc
-  namespace: public
-  env: dev
-  version: 1.0.0
-  retries: 2
-  timeout: 1000
-  grayRatio: 30
-  faultLimit: 10
-  halfOpenInitialDelay: 10000
-  halfOpenDelay: 60000
+  zk:
+    server: localhost:2181
+    root: psrpc
+  app:
+    id: psrpc
+    namespace: public
+    env: dev
+    version: 1.0.0
+  consumer:
+    retries: 2
+    timeout: 1000
+    grayRatio: 30 # 0-100
+    faultLimit: 10 # 30s 内10次错误则隔离
+    halfOpenInitialDelay: 10000
+    halfOpenDelay: 60000
 
 logging:
   level:

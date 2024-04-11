@@ -3,15 +3,19 @@ server:
   shutdown: graceful
 
 psrpc:
-  zkServer: localhost:2181
-  zkRoot: psrpc
-
-app:
-  id: psrpc
-  namespace: public
-  env: dev
-  version: 1.0.0
-  metas: "{dc: 'bj', gray: 'false', unit: 'B001'}"
+  zk:
+    server: localhost:2181
+    root: psrpc
+  app:
+    id: psrpc
+    namespace: public
+    env: dev
+    version: 1.0.0
+  provider:
+    metas:
+      dc: 'bj'
+      gray: 'false'
+      unit: 'B001'
 
 logging:
   level:

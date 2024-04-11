@@ -1,7 +1,9 @@
-package cn.pengshao.rpc.core.provider;
+package cn.pengshao.rpc.core.config;
 
 import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
+import cn.pengshao.rpc.core.provider.ProviderBootstrap;
+import cn.pengshao.rpc.core.provider.ProviderInvoker;
 import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
 import cn.pengshao.rpc.core.transport.SpringBootTransport;
 import lombok.extern.slf4j.Slf4j;
@@ -24,27 +26,20 @@ import java.util.Map;
  */
 @Slf4j
 @Configuration
-@Import({SpringBootTransport.class})
+@Import({SpringBootTransport.class, AppConfigProperties.class, ProviderConfigProperties.class})
 public class ProviderConfig {
 
     @Value("${server.port:8080}")
     private String port;
-    private InstanceMeta instance;
-    @Value("${app.id:psrpc}")
-    private String app;
-    @Value("${app.namespace:public}")
-    private String namespace;
-    @Value("${app.env:dev}")
-    private String env;
-    @Value("${app.version:1.0.0}")
-    private String version;
-    // Spel spring language 可以直接将 json 转成 map
-    @Value("#{${app.metas:{dc: 'bj', gray: 'false', unit: 'B001'}}}")
-    Map<String, String> metas;
+
+    @Autowired
+    AppConfigProperties appConfigProperties;
+    @Autowired
+    ProviderConfigProperties providerConfigProperties;
 
     @Bean
     public ProviderBootstrap providerBootstrap() {
-        return new ProviderBootstrap(port, app, namespace, env, version, metas);
+        return new ProviderBootstrap(port, appConfigProperties, providerConfigProperties);
     }
 
     @Bean
