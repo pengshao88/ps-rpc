@@ -18,6 +18,11 @@ public class RpcException extends RuntimeException {
         this.errCode = errCode;
     }
 
+    public RpcException(String message, String errCode) {
+        super(message);
+        this.errCode = errCode;
+    }
+
     public RpcException(String message) {
         super(message);
     }

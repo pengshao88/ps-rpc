@@ -148,10 +148,9 @@ public class PsInvocationHandler implements InvocationHandler {
                 return result;
             } catch (Exception e) {
                 if (!(e.getCause() instanceof SocketTimeoutException)) {
-                    throw new RpcException(e, ErrorCodeEnum.UNKNOWN_ERROR.getErrorMsg());
+//                    throw new RpcException(e, ErrorCodeEnum.UNKNOWN_ERROR.getErrorMsg());
+                    throw e;
                 }
-
-//                log.warn("invoke fail", e);
             }
         }
         return null;

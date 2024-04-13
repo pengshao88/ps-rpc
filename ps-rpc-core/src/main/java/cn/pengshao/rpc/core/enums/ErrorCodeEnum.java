@@ -21,7 +21,15 @@ public enum ErrorCodeEnum {
      */
     NO_SUCH_METHOD("X", "002", "no such method"),
 
+    /**
+     * 中断异常
+     */
     INTERRUPTED_EXCEPTION("X", "003", "interrupted exception"),
+
+    /**
+     * 限流
+     */
+    EXCEED_LIMIT_EX("X", "004", "tps exceed limit"),
 
     /**
      * 未知错误
