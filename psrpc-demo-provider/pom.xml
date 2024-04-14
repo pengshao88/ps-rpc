@@ -60,6 +60,19 @@
             <version>${psrpc.version}</version>
             <scope>compile</scope>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ctrip.framework.apollo</groupId>
+            <artifactId>apollo-mockserver</artifactId>
+            <version>${apollo.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

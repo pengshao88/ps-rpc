@@ -3,6 +3,7 @@ package cn.pengshao.rpc.core.meta;
 import com.alibaba.fastjson.JSON;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(of = {"host", "port", "context"})
 public class InstanceMeta {
 
     private String schema;
@@ -56,15 +58,4 @@ public class InstanceMeta {
         return JSON.toJSONString(this.parameters);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null) {
-            return false;
-        }
-
-        if (o instanceof InstanceMeta instanceMeta) {
-            return this.host.equals(instanceMeta.getHost()) && this.port == instanceMeta.getPort();
-        }
-        return false;
-    }
 }

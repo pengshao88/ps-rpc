@@ -56,6 +56,8 @@ public class ProviderController {
     @Bean
     ApplicationRunner providerRun(@Autowired ApplicationContext context) {
         return x -> {
+            providerProperties.getMetas().forEach((k, v) -> log.info(k + ":" + v));
+
             ConfigurationPropertiesRebinder rebinder = context.getBean(ConfigurationPropertiesRebinder.class);
             log.info("rebinder:{}", rebinder);
 
@@ -88,7 +90,7 @@ public class ProviderController {
         Map<String, User> userMap = new HashMap<>();
         userMap.put("P100", new User(100, "PP100"));
         userMap.put("P101", new User(101, "PP101"));
-        request.setArgs(new Object[]{ userMap });
+        request.setArgs(new Object[]{userMap});
         rpcResponse = transport.invoke(request);
         log.info("[3] case getMap_Map return : " + rpcResponse.getData());
     }
