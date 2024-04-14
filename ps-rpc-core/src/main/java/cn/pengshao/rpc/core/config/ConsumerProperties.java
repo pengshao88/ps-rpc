@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "psrpc.consumer")
-public class ConsumerConfigProperties {
+public class ConsumerProperties {
 
     private int retries = 1;
 

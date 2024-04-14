@@ -1,7 +1,6 @@
 package cn.pengshao.rpc.core.config;
 
 import cn.pengshao.rpc.core.api.RegistryCenter;
-import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.provider.ProviderBootstrap;
 import cn.pengshao.rpc.core.provider.ProviderInvoker;
 import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
@@ -16,8 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 
-import java.util.Map;
-
 /**
  * Description:
  *
@@ -26,20 +23,22 @@ import java.util.Map;
  */
 @Slf4j
 @Configuration
-@Import({SpringBootTransport.class, AppConfigProperties.class, ProviderConfigProperties.class})
+@Import({SpringBootTransport.class, AppProperties.class, ProviderProperties.class})
 public class ProviderConfig {
 
     @Value("${server.port:8080}")
     private String port;
 
-    @Autowired
-    AppConfigProperties appConfigProperties;
-    @Autowired
-    ProviderConfigProperties providerConfigProperties;
+    @Bean
+    public ProviderBootstrap providerBootstrap(@Autowired AppProperties appProperties,
+                                               @Autowired ProviderProperties providerProperties) {
+        return new ProviderBootstrap(port, appProperties, providerProperties);
+    }
 
     @Bean
-    public ProviderBootstrap providerBootstrap() {
-        return new ProviderBootstrap(port, appConfigProperties, providerConfigProperties);
+    @ConditionalOnMissingBean
+    ApolloChangedListener provider_apolloChangedListener() {
+        return new ApolloChangedListener();
     }
 
     @Bean

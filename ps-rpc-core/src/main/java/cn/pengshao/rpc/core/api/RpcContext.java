@@ -1,5 +1,6 @@
 package cn.pengshao.rpc.core.api;
 
+import cn.pengshao.rpc.core.config.ConsumerProperties;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import lombok.Data;
 
@@ -23,6 +24,8 @@ public class RpcContext {
     List<Filter> filters;
 
     private Map<String, String> parameters = new HashMap<>();
+
+    private ConsumerProperties consumerProperties;
 
     public String getParam(String key) {
         return parameters.get(key);

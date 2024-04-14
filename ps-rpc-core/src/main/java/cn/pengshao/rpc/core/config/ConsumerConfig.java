@@ -4,12 +4,10 @@ import cn.pengshao.rpc.core.api.*;
 import cn.pengshao.rpc.core.cluster.GrayRouter;
 import cn.pengshao.rpc.core.cluster.RoundLoadBalancer;
 import cn.pengshao.rpc.core.consumer.ConsumerBootstrap;
-import cn.pengshao.rpc.core.filter.CacheFilter;
 import cn.pengshao.rpc.core.filter.ParameterFilter;
 import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -27,17 +25,23 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-@Import({AppConfigProperties.class, ConsumerConfigProperties.class})
+@Import({AppProperties.class, ConsumerProperties.class})
 public class ConsumerConfig {
 
     @Autowired
-    AppConfigProperties appConfigProperties;
+    AppProperties appProperties;
     @Autowired
-    ConsumerConfigProperties consumerConfigProperties;
+    ConsumerProperties consumerProperties;
 
     @Bean
     ConsumerBootstrap createConsumerBootstrap() {
         return new ConsumerBootstrap();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    ApolloChangedListener consumer_apolloChangedListener() {
+        return new ApolloChangedListener();
     }
 
     @Bean
@@ -52,7 +56,7 @@ public class ConsumerConfig {
 
     @Bean
     public Router router() {
-        return new GrayRouter(consumerConfigProperties.getGrayRatio());
+        return new GrayRouter(consumerProperties.getGrayRatio());
     }
 
     @Bean
@@ -79,15 +83,11 @@ public class ConsumerConfig {
         context.setRouter(router);
         context.setLoadBalancer(loadBalancer);
         context.setFilters(filters);
-        context.getParameters().put("app.id", appConfigProperties.getId());
-        context.getParameters().put("app.namespace", appConfigProperties.getNamespace());
-        context.getParameters().put("app.env", appConfigProperties.getEnv());
-        context.getParameters().put("app.version", appConfigProperties.getVersion());
-        context.getParameters().put("app.retries", String.valueOf(consumerConfigProperties.getRetries()));
-        context.getParameters().put("app.timeout", String.valueOf(consumerConfigProperties.getTimeout()));
-        context.getParameters().put("app.halfOpenInitialDelay", String.valueOf(consumerConfigProperties.getHalfOpenInitialDelay()));
-        context.getParameters().put("app.faultLimit", String.valueOf(consumerConfigProperties.getFaultLimit()));
-        context.getParameters().put("app.halfOpenDelay", String.valueOf(consumerConfigProperties.getHalfOpenDelay()));
+        context.getParameters().put("app.id", appProperties.getId());
+        context.getParameters().put("app.namespace", appProperties.getNamespace());
+        context.getParameters().put("app.env", appProperties.getEnv());
+        context.getParameters().put("app.version", appProperties.getVersion());
+        context.setConsumerProperties(consumerProperties);
         return context;
     }
 }

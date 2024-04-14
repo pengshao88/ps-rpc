@@ -1,6 +1,7 @@
 package cn.pengshao.rpc.demo.provider;
 
 import cn.pengshao.rpc.core.config.ProviderConfig;
+import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Import;
  */
 @SpringBootApplication
 @Import({ProviderConfig.class})
+@EnableApolloConfig
 public class PsProviderApplication {
 
     public static void main(String[] args) {

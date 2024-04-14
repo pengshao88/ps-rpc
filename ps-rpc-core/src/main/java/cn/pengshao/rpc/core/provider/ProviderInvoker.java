@@ -4,6 +4,7 @@ import cn.pengshao.rpc.core.api.RpcContext;
 import cn.pengshao.rpc.core.api.RpcException;
 import cn.pengshao.rpc.core.api.RpcRequest;
 import cn.pengshao.rpc.core.api.RpcResponse;
+import cn.pengshao.rpc.core.config.ProviderProperties;
 import cn.pengshao.rpc.core.enums.ErrorCodeEnum;
 import cn.pengshao.rpc.core.governance.SlidingTimeWindow;
 import cn.pengshao.rpc.core.meta.ProviderMeta;
@@ -32,15 +33,17 @@ public class ProviderInvoker {
 
     private MultiValueMap<String, ProviderMeta> skeleton;
 
-    private final int trafficControl;
-    final Map<String, String> metas;
+//    private final int trafficControl;
+    // todo 1201 : 改成map，针对不同的服务用不同的流控值
+    // todo 1202 : 对多个节点是共享一个数值，，，把这个map放到redis
 
     private final Map<String, SlidingTimeWindow> windows = new HashMap<>();
+    final ProviderProperties providerProperties;
 
     public ProviderInvoker(ProviderBootstrap providerBootstrap) {
         this.skeleton = providerBootstrap.getSkeleton();
-        this.metas = providerBootstrap.getProviderConfigProperties().getMetas();
-        this.trafficControl = Integer.parseInt(metas.getOrDefault("tc", "20"));
+        this.providerProperties = providerBootstrap.getProviderProperties();
+        // this.trafficControl = Integer.parseInt(metas.getOrDefault("tc", "20"));
     }
 
     public RpcResponse<Object> invoke(RpcRequest request) {
@@ -53,6 +56,8 @@ public class ProviderInvoker {
         String service = request.getService();
         synchronized (windows) {
             SlidingTimeWindow window = windows.computeIfAbsent(service, k -> new SlidingTimeWindow());
+            int trafficControl = Integer.parseInt(providerProperties.getMetas().getOrDefault("tc", "20"));
+            log.debug(" ===>> trafficControl:{} for {}", trafficControl, service);
             if (window.calcSum() > trafficControl) {
                 // 流控
                 String errorMsg = "service " + service + " invoked in 30s/[" + window.getSum()

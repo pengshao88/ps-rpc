@@ -3,8 +3,8 @@ package cn.pengshao.rpc.core.provider;
 import cn.pengshao.rpc.core.annotaion.PsProvider;
 import cn.pengshao.rpc.core.api.RegistryCenter;
 import cn.pengshao.rpc.core.api.RpcException;
-import cn.pengshao.rpc.core.config.AppConfigProperties;
-import cn.pengshao.rpc.core.config.ProviderConfigProperties;
+import cn.pengshao.rpc.core.config.AppProperties;
+import cn.pengshao.rpc.core.config.ProviderProperties;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.meta.ProviderMeta;
 import cn.pengshao.rpc.core.meta.ServiceMeta;
@@ -39,15 +39,15 @@ public class ProviderBootstrap implements ApplicationContextAware {
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
     private String port;
-    private AppConfigProperties appConfigProperties;
-    private ProviderConfigProperties providerConfigProperties;
+    private AppProperties appProperties;
+    private ProviderProperties providerProperties;
     private InstanceMeta instance;
 
-    public ProviderBootstrap(String port, AppConfigProperties appConfigProperties,
-                             ProviderConfigProperties providerConfigProperties) {
+    public ProviderBootstrap(String port, AppProperties appProperties,
+                             ProviderProperties providerProperties) {
         this.port = port;
-        this.appConfigProperties = appConfigProperties;
-        this.providerConfigProperties = providerConfigProperties;
+        this.appProperties = appProperties;
+        this.providerProperties = providerProperties;
     }
 
     @PostConstruct
@@ -78,7 +78,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
             registryCenter.start();
             String ip = InetAddress.getLocalHost().getHostAddress();            ;
             instance = InstanceMeta.http(ip, Integer.parseInt(port));
-            instance.addParams(providerConfigProperties.getMetas());
+            instance.addParams(providerProperties.getMetas());
             skeleton.keySet().forEach(this::registerService);
         } catch (UnknownHostException e) {
             throw new RpcException(e);
@@ -87,11 +87,11 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private void registerService(String service) {
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .app(appConfigProperties.getId())
-                .namespace(appConfigProperties.getNamespace())
-                .env(appConfigProperties.getEnv())
+                .app(appProperties.getId())
+                .namespace(appProperties.getNamespace())
+                .env(appProperties.getEnv())
                 .name(service)
-                .version(appConfigProperties.getVersion()).build();
+                .version(appProperties.getVersion()).build();
         registryCenter.register(serviceMeta, instance);
     }
 
@@ -104,11 +104,11 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private void unregisterService(String service) {
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .app(appConfigProperties.getId())
-                .namespace(appConfigProperties.getNamespace())
-                .env(appConfigProperties.getEnv())
+                .app(appProperties.getId())
+                .namespace(appProperties.getNamespace())
+                .env(appProperties.getEnv())
                 .name(service)
-                .version(appConfigProperties.getVersion()).build();
+                .version(appProperties.getVersion()).build();
         registryCenter.unregister(serviceMeta, instance);
     }
 
