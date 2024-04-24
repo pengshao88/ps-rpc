@@ -18,6 +18,10 @@ psrpc:
       unit: 'B001'
       tc: 20
 
+psregistry:
+  servers:
+    - http://localhost:8484
+
 # apollo config
 app:
   id: psrpc
