@@ -19,8 +19,7 @@ psrpc:
       tc: 20
 
 psregistry:
-  servers:
-    - http://localhost:8484
+  servers: http://localhost:8484
 
 # apollo config
 app:
