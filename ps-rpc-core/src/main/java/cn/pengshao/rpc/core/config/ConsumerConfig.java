@@ -5,7 +5,8 @@ import cn.pengshao.rpc.core.cluster.GrayRouter;
 import cn.pengshao.rpc.core.cluster.RoundLoadBalancer;
 import cn.pengshao.rpc.core.consumer.ConsumerBootstrap;
 import cn.pengshao.rpc.core.filter.ParameterFilter;
-import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
+import cn.pengshao.rpc.core.registry.RegistryCenter;
+import cn.pengshao.rpc.core.registry.ps.PsRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -70,7 +71,8 @@ public class ConsumerConfig {
     @Bean(initMethod = "start", destroyMethod = "stop")
     @ConditionalOnMissingBean
     public RegistryCenter consumer_registryCenter() {
-        return new ZkRegistryCenter();
+        return new PsRegistryCenter();
+        // new ZkRegistryCenter();
     }
 
     @Bean

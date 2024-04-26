@@ -1,7 +1,7 @@
 package cn.pengshao.rpc.core.provider;
 
 import cn.pengshao.rpc.core.annotaion.PsProvider;
-import cn.pengshao.rpc.core.api.RegistryCenter;
+import cn.pengshao.rpc.core.registry.RegistryCenter;
 import cn.pengshao.rpc.core.api.RpcException;
 import cn.pengshao.rpc.core.config.AppProperties;
 import cn.pengshao.rpc.core.config.ProviderProperties;

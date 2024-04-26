@@ -1,7 +1,7 @@
 package cn.pengshao.rpc.core.consumer;
 
 import cn.pengshao.rpc.core.annotaion.PsConsumer;
-import cn.pengshao.rpc.core.api.RegistryCenter;
+import cn.pengshao.rpc.core.registry.RegistryCenter;
 import cn.pengshao.rpc.core.api.RpcContext;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.meta.ServiceMeta;

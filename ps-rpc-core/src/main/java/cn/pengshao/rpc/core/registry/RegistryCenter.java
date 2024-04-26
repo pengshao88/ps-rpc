@@ -1,8 +1,7 @@
-package cn.pengshao.rpc.core.api;
+package cn.pengshao.rpc.core.registry;
 
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.meta.ServiceMeta;
-import cn.pengshao.rpc.core.registry.ChangedListener;
 
 import java.util.List;
 

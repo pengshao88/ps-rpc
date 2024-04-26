@@ -32,7 +32,10 @@ apollo:
     eagerLoad:
       enabled: false                            #将 Apollo 加载提到初始化日志系统之前
 
+psregistry:
+  servers: http://localhost:8484
+
 logging:
   level:
     root: error
-    cn.pengshao.rpc: debug
+    cn.pengshao.rpc: info

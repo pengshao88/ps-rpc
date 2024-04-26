@@ -1,6 +1,6 @@
 package cn.pengshao.rpc.core.registry.ps;
 
-import cn.pengshao.rpc.core.api.RegistryCenter;
+import cn.pengshao.rpc.core.registry.RegistryCenter;
 import cn.pengshao.rpc.core.consumer.HttpInvoker;
 import cn.pengshao.rpc.core.meta.InstanceMeta;
 import cn.pengshao.rpc.core.meta.ServiceMeta;

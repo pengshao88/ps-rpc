@@ -1,9 +1,9 @@
 package cn.pengshao.rpc.core.config;
 
-import cn.pengshao.rpc.core.api.RegistryCenter;
+import cn.pengshao.rpc.core.registry.RegistryCenter;
 import cn.pengshao.rpc.core.provider.ProviderBootstrap;
 import cn.pengshao.rpc.core.provider.ProviderInvoker;
-import cn.pengshao.rpc.core.registry.zk.ZkRegistryCenter;
+import cn.pengshao.rpc.core.registry.ps.PsRegistryCenter;
 import cn.pengshao.rpc.core.transport.SpringBootTransport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,8 @@ public class ProviderConfig {
     @Bean
     @ConditionalOnMissingBean
     public RegistryCenter provider_rc() {
-        return new ZkRegistryCenter();
+        return new PsRegistryCenter();
+        // new ZkRegistryCenter();
     }
 
 }
