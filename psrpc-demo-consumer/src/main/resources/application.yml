@@ -33,7 +33,10 @@ apollo:
       enabled: false                            #将 Apollo 加载提到初始化日志系统之前
 
 psregistry:
-  servers: http://localhost:8484
+  servers:
+    - http://localhost:8484
+    - http://localhost:8485
+    - http://localhost:8486
 
 logging:
   level:

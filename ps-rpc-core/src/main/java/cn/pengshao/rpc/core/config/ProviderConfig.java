@@ -24,7 +24,7 @@ import org.springframework.core.annotation.Order;
  */
 @Slf4j
 @Configuration
-@Import({SpringBootTransport.class, AppProperties.class, ProviderProperties.class})
+@Import({SpringBootTransport.class, AppProperties.class, ProviderProperties.class, PsRegistryProperties.class})
 public class ProviderConfig {
 
     @Value("${server.port:8080}")

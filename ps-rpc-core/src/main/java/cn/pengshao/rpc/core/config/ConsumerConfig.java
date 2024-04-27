@@ -28,7 +28,7 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-@Import({AppProperties.class, ConsumerProperties.class})
+@Import({AppProperties.class, ConsumerProperties.class, PsRegistryProperties.class})
 public class ConsumerConfig {
 
     @Autowired
