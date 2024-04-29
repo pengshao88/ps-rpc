@@ -9,6 +9,7 @@ import cn.pengshao.rpc.core.registry.Event;
 import cn.pengshao.rpc.core.registry.RegistryCenter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -49,13 +50,17 @@ public class PsRegistryCenter implements RegistryCenter {
     List<String> servers;
     PsHealthChecker psHealthChecker = new PsHealthChecker();
 
-    @Override
-    public void start() {
+    @PostConstruct
+    public void init() {
         List<String> servers = registryProperties.getServers();
-        log.info(" ====>>>> [PsRegistryCenter] : start with servers : {}", servers);
+        log.info(" ====>>>> [PsRegistryCenter] : init with servers : {}", servers);
         psHealthChecker.start();
         registryServerCheck();
         clusterCheck();
+    }
+
+    @Override
+    public void start() {
         providerCheck();
     }
 
@@ -109,7 +114,6 @@ public class PsRegistryCenter implements RegistryCenter {
 
     @Override
     public void subscribe(ServiceMeta service, ChangedListener changedListener) {
-        registryServerCheck();
         psHealthChecker.consumerCheck(() -> {
             Long version = VERSIONS.getOrDefault(service.toPath(), -1L);
             Long newVersion = HttpInvoker.httpGet(path(VERSION_PATH, service), Long.class);
@@ -133,7 +137,6 @@ public class PsRegistryCenter implements RegistryCenter {
         if (CollectionUtils.isEmpty(servers)) {
             servers = registryProperties.getServers();
         }
-
         // 获取集群信息
         List<Server> serverList = getClusterServers();
         if (serverList.isEmpty()) {
@@ -167,7 +170,7 @@ public class PsRegistryCenter implements RegistryCenter {
                     return serverList;
                 }
             } catch (Exception e) {
-                log.error(" ====>>>> [PsRegistryCenter] : get servers server {} fail.", server, e);
+                log.error(" ====>>>> [PsRegistryCenter] : get servers server {} fail e:{}.", server, e.getMessage());
             }
         }
         return Collections.emptyList();

@@ -30,6 +30,7 @@ public class PsHealthChecker {
         log.info(" ====>>>> [PsHealthChecker] : stop with health checker.");
         gracefulShutdown(consumerExecutor);
         gracefulShutdown(providerExecutor);
+        gracefulShutdown(clusterExecutor);
     }
 
     public void providerCheck(Callback callback) {
