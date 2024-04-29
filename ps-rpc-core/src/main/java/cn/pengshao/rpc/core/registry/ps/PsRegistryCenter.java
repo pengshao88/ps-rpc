@@ -64,18 +64,18 @@ public class PsRegistryCenter implements RegistryCenter {
         providerCheck();
     }
 
+    @Override
+    public void stop() {
+        log.info(" ====>>>> [PsRegistryCenter] : stop with server : {}", registryServer);
+        psHealthChecker.stop();
+    }
+
     private void registryServerCheck() {
         // 无论 provider、consumer 都从leader 中读写
         doClusterCheck();
         if (StringUtils.isEmpty(registryServer)) {
             throw new RuntimeException(" ====>>>> [PsRegistryCenter] : get registry leader server fail.");
         }
-    }
-
-    @Override
-    public void stop() {
-        log.info(" ====>>>> [PsRegistryCenter] : stop with server : {}", registryServer);
-        psHealthChecker.stop();
     }
 
     @Override
@@ -160,6 +160,7 @@ public class PsRegistryCenter implements RegistryCenter {
     }
 
     private List<Server> getClusterServers() {
+        // TODO 可以改成 可用服务实例
         for (String server : servers) {
             try {
                 List<Server> serverList = HttpInvoker.httpGet(server + CLUSTER_PATH, new TypeReference<>() {
