@@ -88,6 +88,12 @@
             <artifactId>spring-cloud-context</artifactId>
             <version>4.1.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>cn.pengshao.config</groupId>
+            <artifactId>psconfig-client</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

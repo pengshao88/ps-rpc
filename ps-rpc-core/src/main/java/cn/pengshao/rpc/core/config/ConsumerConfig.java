@@ -41,12 +41,12 @@ public class ConsumerConfig {
         return new ConsumerBootstrap();
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "apollo.bootstrap", value = "enabled")
-    ApolloChangedListener consumer_apolloChangedListener() {
-        return new ApolloChangedListener();
-    }
+//    @Bean
+//    @ConditionalOnMissingBean
+//    @ConditionalOnProperty(prefix = "apollo.bootstrap", value = "enabled")
+//    ApolloChangedListener consumer_apolloChangedListener() {
+//        return new ApolloChangedListener();
+//    }
 
     @Bean
     @Order(Integer.MIN_VALUE + 1)
